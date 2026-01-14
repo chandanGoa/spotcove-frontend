@@ -1,9 +1,9 @@
 "use client";
 
-import { VendorThemeProvider } from "@/features/themes/VendorThemeContext";
+import VendorThemeProvider from "@/features/themes/VendorThemeContext";
 import VendorLayoutRenderer from "@/features/themes/VendorLayoutRenderer";
-import layoutData from "../../../data/test-layout.json";
-import themeData from "../../../data/test-theme.json";
+import layoutData from "../data/test-layout.json";
+import themeData from "../data/test-theme.json";
 
 export default function RenderTestPage() {
   // Mock vendor data matching the parent project's structure
