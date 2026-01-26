@@ -1,7 +1,6 @@
 "use client";
 
-import VendorThemeProvider from "@/features/themes/VendorThemeContext";
-import VendorLayoutRenderer from "@/features/themes/VendorLayoutRenderer";
+import { VendorThemeProvider, VendorLayoutRenderer } from "@spotcove/render-runtime";
 import layoutData from "../data/test-layout.json";
 import themeData from "../data/test-theme.json";
 
@@ -15,19 +14,11 @@ export default function RenderTestPage() {
     custom_theme_settings: themeData,
   };
 
-  const mockLayoutMeta = {
-    id: "layout-1",
-    name: "Test Layout",
-    slug: "custom",
-    demo_json: layoutData,
-  };
-
   return (
     <VendorThemeProvider
-      vendor={mockVendor}
-      vendorTheme={mockVendor}
-      availableLayouts={[mockLayoutMeta]}
-      availableThemes={[]}
+      themeSettings={mockVendor.custom_theme_settings}
+      layout={layoutData}
+      vendorSlug={mockVendor.slug}
     >
       <VendorLayoutRenderer>
         <div className="p-8">
