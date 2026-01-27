@@ -31,3 +31,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# render-runtime build output
+/packages/render-runtime/dist
+/packages/render-runtime/node_modules

@@ -4,6 +4,8 @@
   "description": "SpotCove public frontend - demo and vendor storefronts",
   "private": true,
   "scripts": {
+    "predev": "cd packages/render-runtime && (test -d node_modules || npm install) && npm run build",
+    "prebuild": "cd packages/render-runtime && (test -d node_modules || npm install) && npm run build",
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
@@ -13,7 +15,7 @@
     "next": "^14.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@spotcove/render-runtime": "file:../packages/render-runtime",
+    "@spotcove/render-runtime": "file:./packages/render-runtime",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
