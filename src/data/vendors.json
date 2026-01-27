@@ -1,0 +1,34 @@
+[
+  {
+    "id": "vendor_electronics",
+    "name": "ElectroMart",
+    "slug": "electronics",
+    "description": "Demo electronics store",
+    "logo": null,
+    "selected_theme_id": null,
+    "custom_theme_settings": {
+      "colors": {}
+    },
+    "selected_layout": "default",
+    "product_layout": null,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z",
+    "is_active": true
+  },
+  {
+    "id": "vendor_fashion",
+    "name": "FashionHub",
+    "slug": "fashion",
+    "description": "Demo fashion store",
+    "logo": null,
+    "selected_theme_id": null,
+    "custom_theme_settings": {
+      "colors": {}
+    },
+    "selected_layout": "default",
+    "product_layout": null,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z",
+    "is_active": true
+  }
+]

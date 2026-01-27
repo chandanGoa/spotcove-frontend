@@ -1,0 +1,25 @@
+{
+  "colors": {
+    "primary": "220 70% 50%",
+    "primary-foreground": "0 0% 100%",
+    "secondary": "210 40% 96%",
+    "secondary-foreground": "222 47% 11%",
+    "background": "0 0% 100%",
+    "foreground": "222 47% 11%",
+    "accent": "210 100% 50%",
+    "accent-foreground": "0 0% 100%",
+    "muted": "210 40% 96%",
+    "muted-foreground": "215 16% 47%",
+    "card": "0 0% 100%",
+    "card-foreground": "222 47% 11%",
+    "border": "214 32% 91%",
+    "input": "214 32% 91%",
+    "ring": "220 70% 50%",
+    "destructive": "0 84% 60%",
+    "destructive-foreground": "0 0% 100%"
+  },
+  "fonts": {
+    "heading": "system-ui, -apple-system, sans-serif",
+    "body": "system-ui, -apple-system, sans-serif"
+  }
+}

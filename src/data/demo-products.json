@@ -1,0 +1,22 @@
+[
+  {
+    "id": "demo1",
+    "name": "Demo Product 1",
+    "description": "This is a demo product",
+    "rating": 5,
+    "slug": "demo-product-1",
+    "badge": null,
+    "price": 49.99,
+    "medias": { "id": "m1", "key": "demo1.jpg", "alt": "Demo Product 1" }
+  },
+  {
+    "id": "demo2",
+    "name": "Demo Product 2",
+    "description": "This is another demo product",
+    "rating": 4,
+    "slug": "demo-product-2",
+    "badge": "New",
+    "price": 79.99,
+    "medias": { "id": "m2", "key": "demo2.jpg", "alt": "Demo Product 2" }
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "elements": [
+    {
+      "id": "main-container",
+      "type": "container",
+      "settings": {
+        "className": "min-h-screen"
+      },
+      "components": [
+        {
+          "id": "hero-marketplace",
+          "type": "hero",
+          "settings": {
+            "title": "Discover Amazing Products",
+            "subtitle": "From thousands of vendors worldwide",
+            "buttonText": "Start Shopping",
+            "align": "center",
+            "paddingY": 60
+          }
+        },
+        {
+          "id": "products-marketplace",
+          "type": "product-grid",
+          "settings": {
+            "title": "Trending Now",
+            "columns": 4,
+            "align": "left",
+            "paddingY": 50
+          }
+        },
+        {
+          "id": "collections-marketplace",
+          "type": "collections",
+          "settings": {
+            "title": "Popular Categories",
+            "columns": 3,
+            "align": "center",
+            "paddingY": 50
+          }
+        }
+      ]
+    }
+  ]
+}

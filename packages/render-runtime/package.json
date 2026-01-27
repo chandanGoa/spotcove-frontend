@@ -1,0 +1,68 @@
+{
+  "name": "@spotcove/render-runtime",
+  "version": "1.0.0",
+  "description": "Standalone layout and theme renderer for SpotCove - no core dependencies",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "RENDER_RUNTIME_CONTRACT.md",
+    "FROZEN.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.tsx --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.tsx --format cjs,esm --dts --watch",
+    "prepublishOnly": "npm run build",
+    "test": "node test-boundary.js",
+    "test:boundary": "node test-boundary.js"
+  },
+  "keywords": [
+    "layout",
+    "renderer",
+    "theme",
+    "spotcove",
+    "react",
+    "layout-engine",
+    "theme-engine"
+  ],
+  "author": "SpotCove Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chandanGoa/SpotCove-Ecommerce.git",
+    "directory": "packages/render-runtime"
+  },
+  "bugs": {
+    "url": "https://github.com/chandanGoa/SpotCove-Ecommerce/issues"
+  },
+  "homepage": "https://github.com/chandanGoa/SpotCove-Ecommerce/tree/main/packages/render-runtime#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.314.0",
+    "tailwind-merge": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

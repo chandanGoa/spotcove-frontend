@@ -1,0 +1,43 @@
+{
+  "elements": [
+    {
+      "id": "main-container",
+      "type": "container",
+      "settings": {
+        "className": "min-h-screen"
+      },
+      "components": [
+        {
+          "id": "hero-minimal",
+          "type": "hero",
+          "settings": {
+            "title": "Minimal Store",
+            "subtitle": "Simple, Clean, Beautiful",
+            "buttonText": "Shop Now",
+            "align": "center",
+            "paddingY": 80
+          }
+        },
+        {
+          "id": "products-minimal",
+          "type": "product-grid",
+          "settings": {
+            "title": "Featured Products",
+            "columns": 3,
+            "align": "center",
+            "paddingY": 40
+          }
+        },
+        {
+          "id": "newsletter-minimal",
+          "type": "newsletter",
+          "settings": {
+            "title": "Stay Updated",
+            "subtitle": "Subscribe to our newsletter",
+            "align": "center"
+          }
+        }
+      ]
+    }
+  ]
+}
