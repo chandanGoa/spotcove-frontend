@@ -1,0 +1,53 @@
+{
+  "elements": [
+    {
+      "id": "main-container",
+      "type": "container",
+      "settings": {
+        "className": "min-h-screen"
+      },
+      "components": [
+        {
+          "id": "hero-fashion",
+          "type": "hero",
+          "settings": {
+            "title": "New Autumn Collection",
+            "subtitle": "Discover the latest trends",
+            "buttonText": "Explore Collection",
+            "align": "left",
+            "paddingY": 100
+          }
+        },
+        {
+          "id": "collections-fashion",
+          "type": "collections",
+          "settings": {
+            "title": "Shop by Category",
+            "columns": 2,
+            "align": "center",
+            "paddingY": 60
+          }
+        },
+        {
+          "id": "featured-fashion",
+          "type": "featured-products",
+          "settings": {
+            "title": "Featured Items",
+            "columns": 4,
+            "align": "center",
+            "paddingY": 60
+          }
+        },
+        {
+          "id": "newsletter-fashion",
+          "type": "newsletter",
+          "settings": {
+            "title": "Join Our Newsletter",
+            "subtitle": "Get exclusive deals and updates",
+            "align": "center"
+          }
+        }
+      ]
+    }
+  ]
+}

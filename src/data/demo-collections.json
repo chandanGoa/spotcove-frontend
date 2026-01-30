@@ -1,0 +1,14 @@
+[
+  {
+    "id": "col1",
+    "label": "Demo Collection 1",
+    "slug": "demo-collection-1",
+    "medias": { "id": "c1", "key": "collection1.jpg", "alt": "Collection 1" }
+  },
+  {
+    "id": "col2",
+    "label": "Demo Collection 2",
+    "slug": "demo-collection-2",
+    "medias": { "id": "c2", "key": "collection2.jpg", "alt": "Collection 2" }
+  }
+]
