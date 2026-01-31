@@ -69,7 +69,7 @@ export const CollectionsGrid: React.FC<CollectionsGridProps> = ({
               onClick={() => handleCollectionClick(collection)}
               className="cursor-pointer"
             >
-              <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-card border-border">
+              <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-200 bg-card border">
                 <div className="relative aspect-square">
                   {collection.image ? (
                     <img

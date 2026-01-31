@@ -11,7 +11,7 @@ export default function HomePage() {
           </p>
           
           <div className="grid gap-6 md:grid-cols-2 mt-12">
-            <div className="border border-border rounded-lg p-6">
+            <div className="border rounded-lg p-6">
               <h2 className="text-2xl font-semibold mb-2">Demo Routes</h2>
               <p className="text-muted-foreground mb-4">
                 View pre-built demo layouts and themes
@@ -29,7 +29,7 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div className="border border-border rounded-lg p-6">
+            <div className="border rounded-lg p-6">
               <h2 className="text-2xl font-semibold mb-2">Vendor Routes</h2>
               <p className="text-muted-foreground mb-4">
                 View vendor-specific storefronts

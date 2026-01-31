@@ -553,7 +553,7 @@ function DividerComponent({
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
   return (
     <hr
-      className={cn("my-4", settings?.className || "border-border", className)}
+      className={cn("my-4", settings?.className || "border", className)}
       style={{
         borderColor: settings?.color ?? "hsl(var(--border))",
         borderWidth: settings?.thickness || "1px",
