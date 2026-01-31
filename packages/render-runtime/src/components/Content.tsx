@@ -45,8 +45,8 @@ export const Content = memo(function Content(props: ContentProps) {
   if (isLongform) {
     return (
       <section
-        className={cn("py-16 bg-background", className)}
-        style={{ ...themeOverrideStyles, ...style }}
+        className={cn("py-16", className)}
+        style={{ ...themeOverrideStyles, ...style, backgroundColor: 'hsl(var(--background))' }}
         {...rest}
       >
         <article className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,8 +130,8 @@ export const Content = memo(function Content(props: ContentProps) {
 
     return (
       <section
-        className={cn("py-16 bg-background", className)}
-        style={{ ...themeOverrideStyles, ...style }}
+        className={cn("py-16", className)}
+        style={{ ...themeOverrideStyles, ...style, backgroundColor: 'hsl(var(--background))' }}
         {...rest}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -205,8 +205,8 @@ export const Content = memo(function Content(props: ContentProps) {
   // Default: Generic content section
   return (
     <section
-      className={cn("py-16 bg-background", className)}
-      style={{ ...themeOverrideStyles, ...style }}
+      className={cn("py-16", className)}
+      style={{ ...themeOverrideStyles, ...style, backgroundColor: 'hsl(var(--background))' }}
       {...rest}
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

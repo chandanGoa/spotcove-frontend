@@ -68,7 +68,7 @@ export default function VendorKeywordClient({
   }
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))' }}>
       <div className="bg-primary text-primary-foreground px-4 py-3 text-center text-sm font-medium">
         <div className="container mx-auto">
           Vendor: {vendorSlug} - {layoutConfig.name}
