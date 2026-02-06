@@ -14,6 +14,57 @@ import {
   Lightbulb,
 } from "lucide-react";
 
+type Theme = {
+  primaryBg: string;
+  primaryText: string;
+  accent: string;
+  isDark: boolean;
+};
+
+type ServerUIConfig = {
+  layout: string;
+  theme: Theme;
+  title: string;
+  uiHint?: string;
+};
+
+type ToolDefinition = {
+  type: "modal" | "redirect";
+  name: string;
+  url?: string;
+};
+
+type EnvironmentData = {
+  os: string;
+  browser: string;
+  viewport: string;
+  deviceType: "Mobile" | "Desktop";
+  ipAddress: string;
+  headers: Record<string, string>;
+};
+
+type VDBEntry = {
+  prompt: string;
+  embedding: string[];
+  timestamp: number;
+};
+
+type ChatEntry = {
+  role: "user" | "bot";
+  prompt?: string;
+  response?: string;
+  mode: string;
+  timestamp: number;
+  userId?: string;
+  embedding: string[] | null;
+  sources?: Array<{ uri: string; title: string }>;
+};
+
+type LocalPipeline = {
+  task: string;
+  generate: (text: string) => Promise<{ text: string; local_tokens: number }>;
+};
+
 // --- CONFIGURATION ---
 const BOT_NAMES = {
   ASSISTANT: "Aura (Assistant)",
@@ -26,19 +77,19 @@ const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
 const API_KEY = ""; // Canvas environment provides this if empty
 
 // Define default theme styles for different OS/device types
-const IOS_THEME = {
+const IOS_THEME: Theme = {
   primaryBg: "bg-gray-100",
   primaryText: "text-gray-900",
   accent: "text-blue-600",
   isDark: false,
 };
-const ANDROID_THEME = {
+const ANDROID_THEME: Theme = {
   primaryBg: "bg-gray-900",
   primaryText: "text-white",
   accent: "text-teal-400",
   isDark: true,
 };
-const WINDOWS_THEME = {
+const WINDOWS_THEME: Theme = {
   primaryBg: "bg-zinc-800",
   primaryText: "text-gray-100",
   accent: "text-sky-400",
@@ -46,14 +97,14 @@ const WINDOWS_THEME = {
 };
 
 // Default config (used if detection fails)
-const INITIAL_SERVER_CONFIG = {
+const INITIAL_SERVER_CONFIG: ServerUIConfig = {
   layout: "Outside",
   theme: IOS_THEME, // Default to iOS look for general web
   title: "AI Assistant",
 };
 
 // Simulated tool definitions (mocking the server response logic)
-const TOOL_DEFINITIONS = {
+const TOOL_DEFINITIONS: Record<string, ToolDefinition> = {
   "/login": { type: "modal", name: "User Login" },
   "/dictionary": {
     type: "redirect",
@@ -109,7 +160,11 @@ const fetchWithRetry = async (
  * @param {boolean} useGrounding Whether to enable Google Search grounding.
  * @returns {{text: string, sources: Array<{uri: string, title: string}>}}
  */
-const callGeminiAPI = async (prompt, systemPrompt, useGrounding = true) => {
+const callGeminiAPI = async (
+  prompt: string,
+  systemPrompt: string,
+  useGrounding: boolean = true,
+): Promise<{ text: string; sources: Array<{ uri: string; title: string }> }> => {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 
   const payload = {
@@ -154,9 +209,10 @@ const callGeminiAPI = async (prompt, systemPrompt, useGrounding = true) => {
       };
     }
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("Gemini API Error:", error);
     return {
-      text: `Error calling Gemini API: ${error.message}. Please check console for details.`,
+      text: `Error calling Gemini API: ${message}. Please check console for details.`,
       sources: [],
     };
   }
@@ -165,7 +221,7 @@ const callGeminiAPI = async (prompt, systemPrompt, useGrounding = true) => {
 /**
  * Mocks the asynchronous loading and initialization of a transformers.js pipeline.
  */
-const initializeLocalPipeline = async () => {
+const initializeLocalPipeline = async (): Promise<LocalPipeline> => {
   console.log("Starting to load local transformer model (simulated)...");
   // Simulate model download and WASM compilation delay
   await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -173,7 +229,7 @@ const initializeLocalPipeline = async () => {
   const mockPipeline = {
     task: "text-generation",
     // Mock the run/generate method for local inference
-    generate: async (text) => {
+    generate: async (text: string) => {
       await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate very fast local inference latency
       const tokenCount = Math.floor(text.length * 2.5);
       const responseText = `[Client-Side LLM] Processed ${tokenCount} tokens locally. Your query was run entirely in your browser using a client-side model.`;
@@ -191,7 +247,7 @@ const initializeLocalPipeline = async () => {
 /**
  * Simulates environment detection (OS, Browser, Screen Size).
  */
-const detectEnvironment = () => {
+const detectEnvironment = (): EnvironmentData => {
   const userAgent = navigator.userAgent;
   let os = "Unknown OS";
   if (userAgent.includes("Win")) os = "Windows";
@@ -222,7 +278,9 @@ const detectEnvironment = () => {
 /**
  * Simulates the "crazy code" to derive a palette from the environment.
  */
-const calculatePalette = (env) => {
+const calculatePalette = (
+  env: Partial<EnvironmentData>,
+): Pick<Theme, "primaryBg" | "primaryText" | "accent"> => {
   const hour = new Date().getHours();
   const accentColors = [
     "text-sky-500",
@@ -242,7 +300,11 @@ const calculatePalette = (env) => {
  * Simulates an API call to the server to fetch the required UI configuration.
  * This now adapts based on the current layout and login status.
  */
-const fetchServerUI = async (env, currentLayout, isLoggedIn) => {
+const fetchServerUI = async (
+  env: EnvironmentData,
+  currentLayout: string,
+  isLoggedIn: boolean,
+): Promise<ServerUIConfig> => {
   await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate latency
 
   let themeConfig = INITIAL_SERVER_CONFIG.theme;
@@ -292,7 +354,16 @@ const fetchServerUI = async (env, currentLayout, isLoggedIn) => {
 /**
  * Core function to handle LLM/VDB interaction. Uses Gemini API for remote modes.
  */
-const processLLMInteraction = async (prompt, botMode, isOnline, localVDB) => {
+const processLLMInteraction = async (
+  prompt: string,
+  botMode: string,
+  isOnline: boolean,
+  localVDB: VDBEntry[],
+): Promise<{
+  text: string;
+  newVDBEntry: VDBEntry | null;
+  sources?: Array<{ uri: string; title: string }>;
+}> => {
   const embedding = Array.from({ length: 8 }, () => Math.random().toFixed(4));
   const newVDBEntry = { prompt, embedding, timestamp: Date.now() };
 
@@ -336,7 +407,9 @@ const processLLMInteraction = async (prompt, botMode, isOnline, localVDB) => {
 /**
  * Simulates storage of the first user visit data.
  */
-const storeFirstVisitData = (envData) => {
+const storeFirstVisitData = (
+  envData: EnvironmentData,
+): { sessionId: string; loginTimestamp: string } & EnvironmentData => {
   const sessionId = "user-" + Date.now();
   const userData = {
     sessionId,
@@ -366,7 +439,36 @@ const storeFirstVisitData = (envData) => {
 
 // --- REACT COMPONENTS ---
 
-const LoginModal = ({ onClose, onSuccess, theme }) => {
+type LoginModalProps = {
+  onClose: () => void;
+  onSuccess: () => void;
+  theme: Theme;
+};
+
+type PublicTimelineProps = {
+  chatHistory: ChatEntry[];
+  theme: Theme;
+};
+
+type MainOutputAreaProps = {
+  title: string;
+  chatHistory: ChatEntry[];
+  responseMode: string;
+  theme: Theme;
+  isLoggedIn: boolean;
+  isLocalModelReady: boolean;
+  setInputPrompt: React.Dispatch<React.SetStateAction<string>>;
+};
+
+type CommandLineInputProps = {
+  prompt: string;
+  setPrompt: React.Dispatch<React.SetStateAction<string>>;
+  onSubmit: () => void;
+  botMode: string;
+  theme: Theme;
+};
+
+const LoginModal = ({ onClose, onSuccess, theme }: LoginModalProps) => {
   const accentColor = theme.accent.replace("text-", "bg-");
   const isDark = theme.isDark;
 
@@ -405,12 +507,12 @@ const LoginModal = ({ onClose, onSuccess, theme }) => {
   );
 };
 
-const PublicTimeline = ({ chatHistory, theme }) => {
+const PublicTimeline = ({ chatHistory, theme }: PublicTimelineProps) => {
   const accentColor = theme.accent.replace("text-", "bg-");
   const isDark = theme.isDark;
 
   // Find user-bot conversation pairs for the timeline
-  const conversationPairs = [];
+  const conversationPairs: Array<{ user: ChatEntry; bot: ChatEntry }> = [];
   for (let i = 0; i < chatHistory.length; i++) {
     const current = chatHistory[i];
     const next = chatHistory[i + 1];
@@ -492,7 +594,7 @@ const MainOutputArea = ({
   isLoggedIn,
   isLocalModelReady,
   setInputPrompt,
-}) => {
+}: MainOutputAreaProps) => {
   const accentClass = theme.accent;
   const primaryTextClass = theme.primaryText;
   const isDark = theme.isDark;
@@ -638,8 +740,14 @@ const MainOutputArea = ({
   );
 };
 
-const CommandLineInput = ({ prompt, setPrompt, onSubmit, botMode, theme }) => {
-  const inputRef = useRef(null);
+const CommandLineInput = ({
+  prompt,
+  setPrompt,
+  onSubmit,
+  botMode,
+  theme,
+}: CommandLineInputProps) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const modeIcon =
     botMode === BOT_NAMES.ASSISTANT ? (
       <Smile size={20} />
@@ -656,7 +764,7 @@ const CommandLineInput = ({ prompt, setPrompt, onSubmit, botMode, theme }) => {
     inputRef.current?.focus();
   }, []);
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       onSubmit();
     }
@@ -685,7 +793,9 @@ const CommandLineInput = ({ prompt, setPrompt, onSubmit, botMode, theme }) => {
           ref={inputRef}
           type="text"
           value={cleanPrompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPrompt(e.target.value)
+          }
           onKeyDown={handleKeyPress}
           placeholder="Message or command (e.g., /plan or //login)"
           className={`flex-grow bg-transparent outline-none border-none text-base font-sans`}
@@ -708,31 +818,35 @@ const CommandLineInput = ({ prompt, setPrompt, onSubmit, botMode, theme }) => {
 // --- MAIN APP COMPONENT ---
 
 export const App = () => {
-  const [environmentData, setEnvironmentData] = useState(null);
-  const [appPalette, setAppPalette] = useState(calculatePalette({}));
-  const [serverUIConfig, setServerUIConfig] = useState(INITIAL_SERVER_CONFIG);
-  const [chatHistory, setChatHistory] = useState([]);
-  const [inputPrompt, setInputPrompt] = useState("");
-  const [botMode, setBotMode] = useState(BOT_NAMES.ASSISTANT);
+  const [environmentData, setEnvironmentData] =
+    useState<EnvironmentData | null>(null);
+  const [appPalette, setAppPalette] = useState<
+    Pick<Theme, "primaryBg" | "primaryText" | "accent">
+  >(calculatePalette({}));
+  const [serverUIConfig, setServerUIConfig] =
+    useState<ServerUIConfig>(INITIAL_SERVER_CONFIG);
+  const [chatHistory, setChatHistory] = useState<ChatEntry[]>([]);
+  const [inputPrompt, setInputPrompt] = useState<string>("");
+  const [botMode, setBotMode] = useState<string>(BOT_NAMES.ASSISTANT);
 
   // New state: Tracks the desired layout ('Outside' or 'Inside')
-  const [currentLayout, setCurrentLayout] = useState(
+  const [currentLayout, setCurrentLayout] = useState<string>(
     INITIAL_SERVER_CONFIG.layout,
   );
   // responseMode is derived from currentLayout and isLoggedIn in fetchServerUI
-  const [responseMode, setResponseMode] = useState(
+  const [responseMode, setResponseMode] = useState<string>(
     INITIAL_SERVER_CONFIG.layout,
   );
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [localVDB, setLocalVDB] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [localVDB, setLocalVDB] = useState<VDBEntry[]>([]);
 
   // Local Model State
-  const [localPipeline, setLocalPipeline] = useState(null);
-  const [isLocalModelLoading, setIsLocalModelLoading] = useState(false);
-  const [isLocalModelReady, setIsLocalModelReady] = useState(false);
+  const [localPipeline, setLocalPipeline] = useState<LocalPipeline | null>(null);
+  const [isLocalModelLoading, setIsLocalModelLoading] = useState<boolean>(false);
+  const [isLocalModelReady, setIsLocalModelReady] = useState<boolean>(false);
 
   // --- INITIALIZATION AND ENVIRONMENT EFFECTS ---
 
@@ -795,7 +909,7 @@ export const App = () => {
 
   // --- COMMAND AND CHAT LOGIC ---
 
-  const handleToolCommand = (command) => {
+  const handleToolCommand = (command: string) => {
     const tool = command.substring(2);
     const toolDef =
       TOOL_DEFINITIONS["//" + tool] || TOOL_DEFINITIONS["/" + tool];
@@ -832,9 +946,9 @@ export const App = () => {
     }
   };
 
-  const handleBotCommand = (command) => {
+  const handleBotCommand = (command: string) => {
     const subCommand = command.substring(1).toLowerCase();
-    let newMode = null;
+    let newMode: string | null = null;
 
     if (subCommand === "assistant") newMode = BOT_NAMES.ASSISTANT;
     else if (subCommand === "plan") newMode = BOT_NAMES.PLAN;
