@@ -3,7 +3,10 @@
  */
 "use client";
 
-import { VendorLayoutRenderer, VendorThemeProvider } from "@spotcove/render-runtime";
+import {
+  VendorLayoutRenderer,
+  VendorThemeProvider,
+} from "@spotcove/render-runtime";
 import { VendorLayoutEntry } from "@/data/vendor-registry";
 import demoProducts from "@/data/demo-products.json";
 import demoCollections from "@/data/demo-collections.json";
@@ -23,15 +26,17 @@ export default function VendorKeywordClient({
   layoutJson,
   themeJson,
 }: VendorKeywordClientProps) {
-  
   // Prepare component data
   const componentData: Record<string, any> = {};
-  
+
   if (layoutJson?.elements) {
     layoutJson.elements.forEach((element: any) => {
       if (element.components) {
         element.components.forEach((component: any) => {
-          if (component.type === "product-grid" || component.type === "featured-products") {
+          if (
+            component.type === "product-grid" ||
+            component.type === "featured-products"
+          ) {
             componentData[component.id] = {
               products: demoProducts.map((p) => ({
                 id: p.id,
@@ -48,7 +53,7 @@ export default function VendorKeywordClient({
               })),
             };
           }
-          
+
           if (component.type === "collections") {
             componentData[component.id] = {
               collections: demoCollections.map((c) => ({
@@ -66,7 +71,7 @@ export default function VendorKeywordClient({
       }
     });
   }
-  
+
   return (
     <div
       className="min-h-screen"

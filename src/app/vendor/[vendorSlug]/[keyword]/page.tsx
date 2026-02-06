@@ -24,7 +24,10 @@ function VendorNotFound({
   const availableKeywords = vendorEntry ? Object.keys(vendorEntry) : [];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "hsl(var(--background))" }}>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "hsl(var(--background))" }}
+    >
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-3xl font-bold mb-4">Vendor not found</h1>
@@ -84,11 +87,11 @@ export default async function VendorKeywordPage({
 }: VendorKeywordPageProps) {
   const { vendorSlug, keyword } = params;
   const layoutConfig = getVendorLayoutConfig(vendorSlug, keyword);
-  
+
   if (!layoutConfig) {
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }
-  
+
   const layoutJson = layoutConfig.layoutJson;
   const themeJson = layoutConfig.themeJson;
 
@@ -98,7 +101,7 @@ export default async function VendorKeywordPage({
     );
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }
-  
+
   return (
     <VendorKeywordClient
       vendorSlug={vendorSlug}

@@ -175,7 +175,10 @@ const callGeminiAPI = async (
   prompt: string,
   systemPrompt: string,
   useGrounding: boolean = true,
-): Promise<{ text: string; sources: Array<{ uri: string; title: string }> }> => {
+): Promise<{
+  text: string;
+  sources: Array<{ uri: string; title: string }>;
+}> => {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 
   const payload: {
@@ -212,9 +215,8 @@ const callGeminiAPI = async (
             uri: attribution.web?.uri,
             title: attribution.web?.title,
           }))
-          .filter(
-            (source): source is { uri: string; title: string } =>
-              Boolean(source.uri && source.title),
+          .filter((source): source is { uri: string; title: string } =>
+            Boolean(source.uri && source.title),
           );
       }
 
@@ -841,8 +843,9 @@ export const App = () => {
   const [appPalette, setAppPalette] = useState<
     Pick<Theme, "primaryBg" | "primaryText" | "accent">
   >(calculatePalette({}));
-  const [serverUIConfig, setServerUIConfig] =
-    useState<ServerUIConfig>(INITIAL_SERVER_CONFIG);
+  const [serverUIConfig, setServerUIConfig] = useState<ServerUIConfig>(
+    INITIAL_SERVER_CONFIG,
+  );
   const [chatHistory, setChatHistory] = useState<ChatEntry[]>([]);
   const [inputPrompt, setInputPrompt] = useState<string>("");
   const [botMode, setBotMode] = useState<string>(BOT_NAMES.ASSISTANT);
@@ -862,8 +865,11 @@ export const App = () => {
   const [localVDB, setLocalVDB] = useState<VDBEntry[]>([]);
 
   // Local Model State
-  const [localPipeline, setLocalPipeline] = useState<LocalPipeline | null>(null);
-  const [isLocalModelLoading, setIsLocalModelLoading] = useState<boolean>(false);
+  const [localPipeline, setLocalPipeline] = useState<LocalPipeline | null>(
+    null,
+  );
+  const [isLocalModelLoading, setIsLocalModelLoading] =
+    useState<boolean>(false);
   const [isLocalModelReady, setIsLocalModelReady] = useState<boolean>(false);
 
   // --- INITIALIZATION AND ENVIRONMENT EFFECTS ---
@@ -1143,7 +1149,9 @@ Analysis Request: Summary, Topic, Next Action. Format the output clearly.`;
 
     const isOnline = navigator.onLine;
     const storedRecord = localStorage.getItem("sqlite_user_record");
-    const userId = storedRecord ? JSON.parse(storedRecord).sessionId : "anonymous";
+    const userId = storedRecord
+      ? JSON.parse(storedRecord).sessionId
+      : "anonymous";
 
     // 1. Add user message
     setChatHistory((prev) => [

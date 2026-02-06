@@ -18,20 +18,24 @@ export async function middleware(request: NextRequest) {
   const isLocalhostDomain = hostWithoutPort.includes("localhost");
   const isVercelDomain = hostWithoutPort.endsWith(".vercel.app");
   const minParts = isLocalhostDomain ? 2 : 3;
-  
+
   if (!isVercelDomain && hostParts.length >= minParts) {
     const subdomain = hostParts[0];
-    
-    if (subdomain !== "www" && subdomain !== "demo" && subdomain !== "localhost") {
+
+    if (
+      subdomain !== "www" &&
+      subdomain !== "demo" &&
+      subdomain !== "localhost"
+    ) {
       const vendorSlug = subdomain;
       const rewritePath = `/vendor/${vendorSlug}${pathname}`;
       const rewriteUrl = new URL(rewritePath, request.url);
       rewriteUrl.search = url.search;
-      
+
       const rewriteResponse = NextResponse.rewrite(rewriteUrl);
       rewriteResponse.cookies.set("vendor_slug", vendorSlug);
       rewriteResponse.cookies.set("is_demo", "false");
-      
+
       return rewriteResponse;
     }
   }

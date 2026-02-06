@@ -23,7 +23,10 @@ export interface VendorLayoutEntry {
   description?: string;
 }
 
-export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> = {
+export const VENDOR_REGISTRY: Record<
+  string,
+  Record<string, VendorLayoutEntry>
+> = {
   electronics: {
     minimal: {
       name: "Minimal Electronics Layout",
@@ -32,7 +35,7 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       layoutJson: minimalLayout,
       themeJson: minimalTheme,
       packageTier: "free",
-      description: "Clean minimal layout for electronics store"
+      description: "Clean minimal layout for electronics store",
     },
     marketplace: {
       name: "Electronics Marketplace",
@@ -41,10 +44,10 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       layoutJson: marketplaceLayout,
       themeJson: marketplaceTheme,
       packageTier: "premium",
-      description: "Full marketplace layout for electronics"
-    }
+      description: "Full marketplace layout for electronics",
+    },
   },
-  
+
   fashion: {
     minimal: {
       name: "Minimal Fashion Layout",
@@ -53,7 +56,7 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       layoutJson: minimalLayout,
       themeJson: minimalTheme,
       packageTier: "free",
-      description: "Clean minimal layout for fashion store"
+      description: "Clean minimal layout for fashion store",
     },
     fashion: {
       name: "Fashion Store Layout",
@@ -62,14 +65,14 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       layoutJson: fashionLayout,
       themeJson: fashionTheme,
       packageTier: "basic",
-      description: "Fashion-focused layout with warm colors"
-    }
-  }
+      description: "Fashion-focused layout with warm colors",
+    },
+  },
 };
 
 export function getVendorLayoutConfig(
   vendorSlug: string,
-  keyword: string
+  keyword: string,
 ): VendorLayoutEntry | undefined {
   return VENDOR_REGISTRY[vendorSlug]?.[keyword];
 }
