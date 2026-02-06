@@ -56,7 +56,7 @@ type ChatEntry = {
   mode: string;
   timestamp: number;
   userId?: string;
-  embedding: string[] | null;
+  embedding?: string[] | null;
   sources?: Array<{ uri: string; title: string }>;
 };
 
@@ -160,6 +160,17 @@ const fetchWithRetry = async (
  * @param {boolean} useGrounding Whether to enable Google Search grounding.
  * @returns {{text: string, sources: Array<{uri: string, title: string}>}}
  */
+type GeminiResponse = {
+  candidates?: Array<{
+    content?: { parts?: Array<{ text?: string }> };
+    groundingMetadata?: {
+      groundingAttributions?: Array<{
+        web?: { uri?: string; title?: string };
+      }>;
+    };
+  }>;
+};
+
 const callGeminiAPI = async (
   prompt: string,
   systemPrompt: string,
@@ -187,12 +198,12 @@ const callGeminiAPI = async (
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json();
+    const result: GeminiResponse = await response.json();
     const candidate = result.candidates?.[0];
 
     if (candidate && candidate.content?.parts?.[0]?.text) {
       const text = candidate.content.parts[0].text;
-      let sources = [];
+      let sources: Array<{ uri: string; title: string }> = [];
       const groundingMetadata = candidate.groundingMetadata;
 
       if (groundingMetadata && groundingMetadata.groundingAttributions) {
@@ -201,7 +212,10 @@ const callGeminiAPI = async (
             uri: attribution.web?.uri,
             title: attribution.web?.title,
           }))
-          .filter((source) => source.uri && source.title);
+          .filter(
+            (source): source is { uri: string; title: string } =>
+              Boolean(source.uri && source.title),
+          );
       }
 
       return { text, sources };
@@ -1128,9 +1142,8 @@ Analysis Request: Summary, Topic, Next Action. Format the output clearly.`;
     setIsLoading(true);
 
     const isOnline = navigator.onLine;
-    const userId = localStorage.getItem("sqlite_user_record")
-      ? JSON.parse(localStorage.getItem("sqlite_user_record")).sessionId
-      : "anonymous";
+    const storedRecord = localStorage.getItem("sqlite_user_record");
+    const userId = storedRecord ? JSON.parse(storedRecord).sessionId : "anonymous";
 
     // 1. Add user message
     setChatHistory((prev) => [
