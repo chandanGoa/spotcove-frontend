@@ -4,8 +4,6 @@
 
 import { getVendorLayoutConfig, VENDOR_REGISTRY } from "@/data/vendor-registry";
 import VendorKeywordClient from "./VendorKeywordClient";
-import fs from "fs";
-import path from "path";
 
 interface VendorKeywordPageProps {
   params: {
@@ -91,21 +89,12 @@ export default async function VendorKeywordPage({
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }
   
-  const dataDir = path.join(process.cwd(), "src", "data");
-  
-  let layoutJson: any;
-  let themeJson: any;
-  
-  try {
-    const layoutPath = path.join(dataDir, layoutConfig.layoutJsonPath);
-    const themePath = path.join(dataDir, layoutConfig.themeJsonPath);
-    
-    layoutJson = JSON.parse(fs.readFileSync(layoutPath, "utf-8"));
-    themeJson = JSON.parse(fs.readFileSync(themePath, "utf-8"));
-  } catch (error) {
+  const layoutJson = layoutConfig.layoutJson;
+  const themeJson = layoutConfig.themeJson;
+
+  if (!layoutJson || !themeJson) {
     console.error(
-      `Failed to load vendor layout files for ${vendorSlug}/${keyword}:`,
-      error,
+      `Missing vendor layout/theme JSON for ${vendorSlug}/${keyword}.`,
     );
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }

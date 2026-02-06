@@ -1,8 +1,15 @@
 /**
  * Vendor Layout Registry
- * 
- * Maps vendor slug + keyword to layout/theme JSON paths
+ *
+ * Maps vendor slug + keyword to layout/theme JSON.
  */
+
+import minimalLayout from "@/data/demo-layouts/minimal.json";
+import fashionLayout from "@/data/demo-layouts/fashion.json";
+import marketplaceLayout from "@/data/demo-layouts/marketplace.json";
+import minimalTheme from "@/data/demo-themes/minimal.json";
+import fashionTheme from "@/data/demo-themes/fashion.json";
+import marketplaceTheme from "@/data/demo-themes/marketplace.json";
 
 export type PackageTier = "free" | "basic" | "premium" | "enterprise";
 
@@ -10,6 +17,8 @@ export interface VendorLayoutEntry {
   name: string;
   layoutJsonPath: string;
   themeJsonPath: string;
+  layoutJson: unknown;
+  themeJson: unknown;
   packageTier: PackageTier;
   description?: string;
 }
@@ -20,6 +29,8 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       name: "Minimal Electronics Layout",
       layoutJsonPath: "demo-layouts/minimal.json",
       themeJsonPath: "demo-themes/minimal.json",
+      layoutJson: minimalLayout,
+      themeJson: minimalTheme,
       packageTier: "free",
       description: "Clean minimal layout for electronics store"
     },
@@ -27,6 +38,8 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       name: "Electronics Marketplace",
       layoutJsonPath: "demo-layouts/marketplace.json",
       themeJsonPath: "demo-themes/marketplace.json",
+      layoutJson: marketplaceLayout,
+      themeJson: marketplaceTheme,
       packageTier: "premium",
       description: "Full marketplace layout for electronics"
     }
@@ -37,6 +50,8 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       name: "Minimal Fashion Layout",
       layoutJsonPath: "demo-layouts/minimal.json",
       themeJsonPath: "demo-themes/minimal.json",
+      layoutJson: minimalLayout,
+      themeJson: minimalTheme,
       packageTier: "free",
       description: "Clean minimal layout for fashion store"
     },
@@ -44,6 +59,8 @@ export const VENDOR_REGISTRY: Record<string, Record<string, VendorLayoutEntry>> 
       name: "Fashion Store Layout",
       layoutJsonPath: "demo-layouts/fashion.json",
       themeJsonPath: "demo-themes/fashion.json",
+      layoutJson: fashionLayout,
+      themeJson: fashionTheme,
       packageTier: "basic",
       description: "Fashion-focused layout with warm colors"
     }
