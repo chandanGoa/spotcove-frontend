@@ -3,7 +3,7 @@
  */
 "use client";
 
-import { VendorLayoutRenderer } from "@spotcove/render-runtime";
+import { VendorLayoutRenderer, VendorThemeProvider } from "@spotcove/render-runtime";
 import { VendorLayoutEntry } from "@/data/vendor-registry";
 import demoProducts from "@/data/demo-products.json";
 import demoCollections from "@/data/demo-collections.json";
@@ -68,7 +68,10 @@ export default function VendorKeywordClient({
   }
   
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))' }}>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "hsl(var(--background))" }}
+    >
       <div className="bg-primary text-primary-foreground px-4 py-3 text-center text-sm font-medium">
         <div className="container mx-auto">
           Vendor: {vendorSlug} - {layoutConfig.name}
@@ -77,8 +80,14 @@ export default function VendorKeywordClient({
           </span>
         </div>
       </div>
-      
-      <VendorLayoutRenderer componentData={componentData} />
+
+      <VendorThemeProvider
+        themeSettings={themeJson}
+        layout={layoutJson}
+        vendorSlug={vendorSlug}
+      >
+        <VendorLayoutRenderer componentData={componentData} />
+      </VendorThemeProvider>
     </div>
   );
 }
