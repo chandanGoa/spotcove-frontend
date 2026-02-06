@@ -28,18 +28,9 @@ async function VendorLayout({ children, params }: Props) {
     },
   };
 
-  const layout = {
-    metadata: {
-      name: `${vendor.name} Layout`,
-      version: "1.0",
-    },
-    elements: [],
-  };
-
   return (
     <VendorThemeWrapper
       themeSettings={themeSettings}
-      layout={layout}
       vendorSlug={params.vendorSlug}
     >
       {children}
