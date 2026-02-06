@@ -5,6 +5,7 @@ export async function middleware(request: NextRequest) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const host = request.headers.get("host") || "";
+  const hostWithoutPort = host.split(":")[0];
 
   let response = NextResponse.next({
     request: {
@@ -13,11 +14,12 @@ export async function middleware(request: NextRequest) {
   });
 
   // Subdomain-to-Path Rewrite
-  const hostParts = host.split(".");
-  const isLocalhostDomain = host.includes("localhost");
+  const hostParts = hostWithoutPort.split(".");
+  const isLocalhostDomain = hostWithoutPort.includes("localhost");
+  const isVercelDomain = hostWithoutPort.endsWith(".vercel.app");
   const minParts = isLocalhostDomain ? 2 : 3;
   
-  if (hostParts.length >= minParts) {
+  if (!isVercelDomain && hostParts.length >= minParts) {
     const subdomain = hostParts[0];
     
     if (subdomain !== "www" && subdomain !== "demo" && subdomain !== "localhost") {
@@ -43,8 +45,8 @@ export async function middleware(request: NextRequest) {
   if (host.startsWith("demo.")) {
     isDemo = true;
     vendorSlug = null;
-  } else if (host.split(".").length > 2) {
-    vendorSlug = host.split(".")[0];
+  } else if (!isVercelDomain && hostParts.length > 2) {
+    vendorSlug = hostParts[0];
   } else if (pathSegments[0] === "vendor") {
     vendorSlug = pathSegments[1] || null;
   }
