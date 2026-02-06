@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface AIGeneratorProps {
   onGenerate: (userInput: string) => Promise<void>;
@@ -6,20 +6,20 @@ interface AIGeneratorProps {
 }
 
 export function AIGenerator({ onGenerate, loading }: AIGeneratorProps) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
       await onGenerate(input);
-      setInput('');
+      setInput("");
     }
   };
 
   const suggestedPrompts = [
-    'Create a login form',
-    'Show a product card',
-    'Display a user profile',
+    "Create a login form",
+    "Show a product card",
+    "Display a user profile",
   ];
 
   return (
@@ -32,7 +32,10 @@ export function AIGenerator({ onGenerate, loading }: AIGeneratorProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="input" className="block text-sm font-medium text-slate-300 mb-2">
+            <label
+              htmlFor="input"
+              className="block text-sm font-medium text-slate-300 mb-2"
+            >
               Describe your UI
             </label>
             <textarea
@@ -51,14 +54,16 @@ export function AIGenerator({ onGenerate, loading }: AIGeneratorProps) {
             disabled={loading || !input.trim()}
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : 'Generate UI Schema'}
+            {loading ? "Processing..." : "Generate UI Schema"}
           </button>
         </form>
       </div>
 
       {/* Suggested Prompts */}
       <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-4">
-        <p className="text-xs font-semibold text-slate-400 mb-3">Quick Examples:</p>
+        <p className="text-xs font-semibold text-slate-400 mb-3">
+          Quick Examples:
+        </p>
         <div className="space-y-2">
           {suggestedPrompts.map((prompt) => (
             <button
