@@ -99,6 +99,7 @@ const fetchWithRetry = async (
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
+  throw new Error("Failed to fetch after max retries");
 };
 
 /**
