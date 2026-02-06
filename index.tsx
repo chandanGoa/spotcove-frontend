@@ -37,7 +37,7 @@ const TOOL_DEFINITIONS = {
 /**
  * Implements exponential backoff retry mechanism for API calls.
  */
-const fetchWithRetry = async (url, options, maxRetries = 5) => {
+const fetchWithRetry = async (url: string, options?: RequestInit, maxRetries: number = 5): Promise<Response> => {
     for (let i = 0; i < maxRetries; i++) {
         try {
             const response = await fetch(url, options);
