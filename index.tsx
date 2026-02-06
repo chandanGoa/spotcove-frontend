@@ -167,7 +167,11 @@ const callGeminiAPI = async (
 ): Promise<{ text: string; sources: Array<{ uri: string; title: string }> }> => {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 
-  const payload = {
+  const payload: {
+    contents: Array<{ parts: Array<{ text: string }> }>;
+    systemInstruction: { parts: Array<{ text: string }> };
+    tools?: Array<{ google_search: Record<string, never> }>;
+  } = {
     contents: [{ parts: [{ text: prompt }] }],
     systemInstruction: { parts: [{ text: systemPrompt }] },
   };
