@@ -35,3 +35,4 @@ next-env.d.ts
 # render-runtime build output
 /packages/render-runtime/dist
 /packages/render-runtime/node_modules
+.next/cache/webpack/client-development/0.pack.gz
