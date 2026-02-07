@@ -1,6 +1,6 @@
 /**
  * Vendor Theme Wrapper
- * 
+ *
  * Client component that wraps vendor content with theme provider
  */
 "use client";
@@ -20,10 +20,7 @@ export default function VendorThemeWrapper({
   vendorSlug,
 }: Props) {
   return (
-    <VendorThemeProvider
-      themeSettings={themeSettings}
-      vendorSlug={vendorSlug}
-    >
+    <VendorThemeProvider themeSettings={themeSettings} vendorSlug={vendorSlug}>
       {children}
     </VendorThemeProvider>
   );

@@ -7,14 +7,16 @@ import { notFound } from "next/navigation";
 import VendorThemeWrapper from "./VendorThemeWrapper";
 import vendorsData from "@/data/vendors.json";
 
-type Props = { 
+type Props = {
   children: ReactNode;
   params: { vendorSlug: string };
 };
 
 async function VendorLayout({ children, params }: Props) {
-  const vendor = vendorsData.find(v => v.slug === params.vendorSlug && v.is_active);
-  
+  const vendor = vendorsData.find(
+    (v) => v.slug === params.vendorSlug && v.is_active,
+  );
+
   if (!vendor) {
     notFound();
   }

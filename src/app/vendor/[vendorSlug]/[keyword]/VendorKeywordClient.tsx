@@ -85,9 +85,7 @@ export default function VendorKeywordClient({
         }
       } catch (error) {
         if ((error as Error).name === "AbortError") return;
-        setLoadError(
-          error instanceof Error ? error.message : "Unknown error",
-        );
+        setLoadError(error instanceof Error ? error.message : "Unknown error");
       }
     };
 

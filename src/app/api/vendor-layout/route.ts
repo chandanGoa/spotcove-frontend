@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
       });
 
       if (upstreamResponse.ok) {
-        const upstreamData = (await upstreamResponse.json()) as Partial<VendorLayoutResponse>;
+        const upstreamData =
+          (await upstreamResponse.json()) as Partial<VendorLayoutResponse>;
         if (upstreamData.layoutJson && upstreamData.themeJson) {
           return NextResponse.json({
             vendorSlug,
