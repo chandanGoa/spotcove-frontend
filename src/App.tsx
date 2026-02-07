@@ -15,8 +15,7 @@ export default function App() {
             AI UI Generator
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Generate universal UI schemas with ai-core, adapt with
-            universal-adapter
+            Offline demo mode (no external service calls)
           </p>
         </div>
       </header>
@@ -26,47 +25,11 @@ export default function App() {
           {/* Left: Generator */}
           <div className="space-y-6">
             <AIGenerator
-              onGenerate={async (userInput) => {
+              onGenerate={async () => {
                 setLoading(true);
                 try {
-                  const response = await fetch(
-                    "http://localhost:8000/generate-ui",
-                    {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        user_input: userInput,
-                        context: {},
-                      }),
-                    },
-                  );
-
-                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                  const data = await response.json();
-                  setGeneratedComponents(data.components || []);
-
-                  // Now adapt to web
-                  const adaptResponse = await fetch(
-                    "http://localhost:4000/adapt-ui",
-                    {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        components: data.components || [],
-                        platform: "web",
-                      }),
-                    },
-                  );
-
-                  if (!adaptResponse.ok)
-                    throw new Error(`Adapt HTTP ${adaptResponse.status}`);
-                  const html = await adaptResponse.text();
-                  setAdaptedHTML(html);
-                } catch (error) {
-                  console.error("Error:", error);
-                  alert(
-                    `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-                  );
+                  setGeneratedComponents([]);
+                  setAdaptedHTML("");
                 } finally {
                   setLoading(false);
                 }
@@ -105,19 +68,19 @@ export default function App() {
         {/* Info Cards */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
           <InfoCard
-            title="ai-core (Port 8000)"
+            title="Offline Demo"
             status={true}
-            description="Generate universal UI schemas from user input"
+            description="Static UI preview (no service dependencies)"
           />
           <InfoCard
-            title="universal-adapter (Port 4000)"
+            title="Frontend Renderer"
             status={true}
-            description="Adapt UI schemas to platform-native code"
+            description="Public-safe UI rendering only"
           />
           <InfoCard
-            title="Frontend (Port 5173)"
+            title="Standalone Ready"
             status={true}
-            description="React app coordinating the services"
+            description="No calls to internal services"
           />
         </div>
       </main>
