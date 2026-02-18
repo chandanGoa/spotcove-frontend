@@ -19,7 +19,9 @@ export const VENDOR_PLANS: Record<string, VendorPlanRecord> = {
   },
 };
 
-export function getVendorPlan(vendorSlug: string): VendorPlanRecord | undefined {
+export function getVendorPlan(
+  vendorSlug: string,
+): VendorPlanRecord | undefined {
   return VENDOR_PLANS[vendorSlug];
 }
 
