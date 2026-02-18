@@ -1,12 +1,12 @@
 /**
  * VendorLayoutRenderer - Render Runtime Version
- * 
+ *
  * ⚠️ FROZEN FILE - DO NOT MODIFY WITHOUT CONTRACT CHANGE ⚠️
  * See: RENDER_RUNTIME_CONTRACT.md
- * 
+ *
  * Core layout rendering engine for @spotcove/render-runtime
  * This is a minimal copy of the core renderer with ALL dependencies removed
- * 
+ *
  * STRICT RULES:
  * - NO database imports (Supabase, Drizzle)
  * - NO API route imports
@@ -14,7 +14,7 @@
  * - NO server components
  * - NO cart/feature logic
  * - ONLY accepts layout JSON and component data via props
- * 
+ *
  * This file successfully rendered real data in __render_test__/
  * Any changes MUST preserve this rendering capability
  */
@@ -28,8 +28,11 @@ import { Content } from "./components/Content";
 import ProductsSection from "./components/ProductsSection";
 import CollectionsGrid from "./components/CollectionsGrid";
 import FeaturedProducts from "./components/FeaturedProducts";
+import FeaturedServices from "./components/FeaturedServices";
 import SimpleNavbar from "./components/SimpleNavbar";
 import MainFooter from "./components/MainFooter";
+import HowItWorksSection from "./components/HowItWorksSection";
+import CtaSection from "./components/CtaSection";
 import { getThemeOverrideStyles } from "./theme-wrapper";
 import { cn } from "./utils";
 import {
@@ -50,7 +53,9 @@ const componentMappers: Record<string, React.ComponentType<any>> = {
   footer: FooterComponent,
   newsletter: NewsletterSection,
   "featured-products": FeaturedProducts,
+  "featured-services": FeaturedServices,
   collections: CollectionsGrid,
+  "categories-grid": CollectionsGrid,
   heading: HeadingComponent,
   text: TextComponent,
   button: ButtonComponent,
@@ -58,6 +63,9 @@ const componentMappers: Record<string, React.ComponentType<any>> = {
   divider: DividerComponent,
   spacer: SpacerComponent,
   Content: Content,
+  "how-it-works": HowItWorksSection,
+  "vendor-cta": CtaSection,
+  "promoter-cta": CtaSection,
   "rich-text": Content,
 };
 
@@ -112,8 +120,7 @@ export default function VendorLayoutRenderer({
   children,
   componentData = {},
 }: VendorLayoutRendererProps) {
-  const { currentLayout, currentThemeSettings, vendorSlug } =
-    useVendorTheme();
+  const { currentLayout, currentThemeSettings, vendorSlug } = useVendorTheme();
 
   console.log(`🎨 VendorLayoutRenderer for ${vendorSlug}:`, {
     hasCurrentLayout: !!currentLayout,
@@ -142,16 +149,16 @@ export default function VendorLayoutRenderer({
                   const componentId = component?.id || "unknown";
 
                   validateComponentType(component?.type, componentId).forEach(
-                    (warning) => console.warn(warning)
+                    (warning) => console.warn(warning),
                   );
                   validateComponentSettings(
                     component?.type,
                     component?.settings,
-                    componentId
+                    componentId,
                   ).forEach((warning) => console.debug(warning));
                   validateThemeOverride(
                     component?.themeOverride,
-                    componentId
+                    componentId,
                   ).forEach((warning) => console.warn(warning));
 
                   const validatedType =
@@ -162,7 +169,7 @@ export default function VendorLayoutRenderer({
                       : "rich-text";
 
                   const Component = componentMappers[validatedType];
-                  
+
                   // Inject component data if available
                   const componentSettings = {
                     ...component.settings,
@@ -203,7 +210,10 @@ export default function VendorLayoutRenderer({
 }
 
 // Recursive element rendering
-function renderLayoutElements(elements: any[], componentData: Record<string, any> = {}) {
+function renderLayoutElements(
+  elements: any[],
+  componentData: Record<string, any> = {},
+) {
   if (!Array.isArray(elements)) {
     return null;
   }
@@ -275,15 +285,15 @@ function renderLayoutElements(elements: any[], componentData: Record<string, any
           const componentId = component?.id || "unknown";
 
           validateComponentType(component?.type, componentId).forEach(
-            (warning) => console.warn(warning)
+            (warning) => console.warn(warning),
           );
           validateComponentSettings(
             component?.type,
             component?.settings,
-            componentId
+            componentId,
           ).forEach((warning) => console.debug(warning));
           validateThemeOverride(component?.themeOverride, componentId).forEach(
-            (warning) => console.warn(warning)
+            (warning) => console.warn(warning),
           );
 
           const validatedType =
@@ -294,7 +304,7 @@ function renderLayoutElements(elements: any[], componentData: Record<string, any
               : "rich-text";
 
           const Component = componentMappers[validatedType];
-          
+
           // Inject component data if available
           const componentSettings = {
             ...component.settings,
@@ -315,19 +325,17 @@ function renderLayoutElements(elements: any[], componentData: Record<string, any
         })}
 
         {/* Render child elements recursively */}
-        {childElements.length > 0 && renderLayoutElements(childElements, componentData)}
+        {childElements.length > 0 &&
+          renderLayoutElements(childElements, componentData)}
       </div>
     );
   });
 }
 
-function normalizeElementSettings(
-  settings: unknown,
-  elementId?: string
-): any {
+function normalizeElementSettings(settings: unknown, elementId?: string): any {
   if (elementId) {
     validateLayoutSettings(settings, elementId).forEach((warning) =>
-      console.warn(warning)
+      console.warn(warning),
     );
   }
 
@@ -336,7 +344,15 @@ function normalizeElementSettings(
 
 function DefaultLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>{children}</div>
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundColor: "hsl(var(--background))",
+        color: "hsl(var(--foreground))",
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -353,7 +369,7 @@ function HeaderComponent({
       className={cn(
         "bg-card shadow-sm border-b sticky top-0 z-50",
         settings?.className,
-        className
+        className,
       )}
       style={{ ...themeOverrideStyles, ...style }}
     >

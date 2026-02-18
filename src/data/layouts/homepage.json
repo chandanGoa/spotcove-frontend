@@ -1,0 +1,109 @@
+{
+  "elements": [
+    {
+      "id": "homepage-root",
+      "type": "container",
+      "settings": {
+        "className": "min-h-screen bg-background text-foreground"
+      },
+      "components": [
+        {
+          "id": "homepage-hero",
+          "type": "hero",
+          "settings": {
+            "title": "SpotCove for Modern Marketplaces",
+            "subtitle": "Launch a multi-vendor storefront, promote curated services, and scale customer experiences with data-driven layouts.",
+            "buttonText": "Explore the Marketplace",
+            "align": "center",
+            "paddingY": 96,
+            "subtype": "hero-centered",
+            "contentGap": 48,
+            "containerPadding": 24
+          }
+        },
+        {
+          "id": "homepage-how-it-works",
+          "type": "how-it-works",
+          "settings": {
+            "title": "How SpotCove Works",
+            "subtitle": "A layout-first workflow to launch vendors, services, and promotions quickly.",
+            "align": "center",
+            "paddingY": 72,
+            "columns": 3,
+            "steps": [
+              {
+                "title": "Curate Vendors",
+                "description": "Onboard vendors and organize offerings into themed collections."
+              },
+              {
+                "title": "Design Layouts",
+                "description": "Compose hero, category, and featured blocks using layout JSON."
+              },
+              {
+                "title": "Promote Services",
+                "description": "Surface the most valuable services with flexible, data-driven modules."
+              }
+            ]
+          }
+        },
+        {
+          "id": "homepage-categories",
+          "type": "categories-grid",
+          "settings": {
+            "title": "Browse Categories",
+            "layout": "grid",
+            "paddingY": 64,
+            "containerPadding": 24
+          }
+        },
+        {
+          "id": "homepage-featured-services",
+          "type": "featured-services",
+          "settings": {
+            "title": "Featured Services",
+            "columns": 3,
+            "align": "center",
+            "paddingY": 72,
+            "showDescription": true,
+            "showBadge": true
+          }
+        },
+        {
+          "id": "homepage-vendor-cta",
+          "type": "vendor-cta",
+          "settings": {
+            "title": "Ready to Become a Vendor?",
+            "subtitle": "Launch your storefront in minutes and reach new customers with zero code.",
+            "buttonText": "Start Selling",
+            "buttonLink": "/vendor/electronics/minimal",
+            "align": "center",
+            "variant": "vendor",
+            "paddingY": 72,
+            "containerPadding": 24
+          }
+        },
+        {
+          "id": "homepage-promoter-cta",
+          "type": "promoter-cta",
+          "settings": {
+            "title": "Promote Your Best Offers",
+            "subtitle": "Showcase campaigns, bundles, and limited-time services with confidence.",
+            "buttonText": "Launch a Promo",
+            "buttonLink": "/demo/marketplace",
+            "align": "center",
+            "variant": "promoter",
+            "paddingY": 72,
+            "containerPadding": 24
+          }
+        },
+        {
+          "id": "homepage-footer",
+          "type": "footer",
+          "settings": {
+            "className": "mt-8"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "colors": {
+    "primary": "200 85% 45%",
+    "primary-foreground": "0 0% 100%",
+    "secondary": "32 95% 55%",
+    "secondary-foreground": "0 0% 100%",
+    "background": "210 33% 98%",
+    "foreground": "222 47% 11%",
+    "accent": "186 95% 40%",
+    "accent-foreground": "0 0% 100%",
+    "muted": "210 40% 96%",
+    "muted-foreground": "215 16% 46%",
+    "card": "0 0% 100%",
+    "card-foreground": "222 47% 11%",
+    "border": "214 32% 91%",
+    "input": "214 32% 91%",
+    "ring": "200 85% 45%",
+    "destructive": "0 84% 60%",
+    "destructive-foreground": "0 0% 100%"
+  },
+  "fonts": {
+    "heading": "\"Space Grotesk\", \"Segoe UI\", sans-serif",
+    "body": "\"Source Sans 3\", \"Segoe UI\", sans-serif"
+  }
+}
