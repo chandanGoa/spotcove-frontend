@@ -1,11 +1,13 @@
 // frontend/src/middleware.ts
 import { NextResponse, type NextRequest } from "next/server";
+import { getVendorPlan } from "@/data/vendor-plans";
 
 export async function middleware(request: NextRequest) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const host = request.headers.get("host") || "";
   const hostWithoutPort = host.split(":")[0];
+  const isIpAddress = /^\d+\.\d+\.\d+\.\d+$/.test(hostWithoutPort);
 
   let response = NextResponse.next({
     request: {
@@ -19,7 +21,7 @@ export async function middleware(request: NextRequest) {
   const isVercelDomain = hostWithoutPort.endsWith(".vercel.app");
   const minParts = isLocalhostDomain ? 2 : 3;
 
-  if (!isVercelDomain && hostParts.length >= minParts) {
+  if (!isVercelDomain && !isIpAddress && hostParts.length >= minParts) {
     const subdomain = hostParts[0];
 
     if (
@@ -28,6 +30,15 @@ export async function middleware(request: NextRequest) {
       subdomain !== "localhost"
     ) {
       const vendorSlug = subdomain;
+      const vendorPlan = getVendorPlan(vendorSlug);
+
+      if (!vendorPlan || vendorPlan.plan !== "paid") {
+        const upgradeUrl = new URL("/upgrade-required", request.url);
+        upgradeUrl.search = url.search;
+
+        return NextResponse.rewrite(upgradeUrl);
+      }
+
       const rewritePath = `/vendor/${vendorSlug}${pathname}`;
       const rewriteUrl = new URL(rewritePath, request.url);
       rewriteUrl.search = url.search;

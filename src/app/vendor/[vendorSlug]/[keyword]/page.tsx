@@ -3,6 +3,8 @@
  */
 
 import { getVendorLayoutConfig, VENDOR_REGISTRY } from "@/data/vendor-registry";
+import { getVendorPlan, isTrialExpired } from "@/data/vendor-plans";
+import { notFound } from "next/navigation";
 import VendorKeywordClient from "./VendorKeywordClient";
 
 interface VendorKeywordPageProps {
@@ -86,6 +88,23 @@ export default async function VendorKeywordPage({
   params,
 }: VendorKeywordPageProps) {
   const { vendorSlug, keyword } = params;
+  const vendorPlan = getVendorPlan(vendorSlug);
+
+  if (!vendorPlan) {
+    notFound();
+  }
+
+  if (isTrialExpired(vendorPlan)) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl font-bold mb-4">Trial expired</h1>
+          <p className="text-muted-foreground">Trial expired. Upgrade required.</p>
+        </div>
+      </div>
+    );
+  }
+
   const layoutConfig = getVendorLayoutConfig(vendorSlug, keyword);
 
   if (!layoutConfig) {

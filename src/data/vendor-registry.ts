@@ -27,6 +27,42 @@ export const VENDOR_REGISTRY: Record<
   string,
   Record<string, VendorLayoutEntry>
 > = {
+  acme: {
+    landing: {
+      name: "Acme Landing Layout",
+      layoutJsonPath: "demo-layouts/minimal.json",
+      themeJsonPath: "demo-themes/minimal.json",
+      layoutJson: minimalLayout,
+      themeJson: minimalTheme,
+      packageTier: "basic",
+      description: "Acme trial storefront landing page",
+    },
+  },
+
+  beta: {
+    landing: {
+      name: "Beta Landing Layout",
+      layoutJsonPath: "demo-layouts/fashion.json",
+      themeJsonPath: "demo-themes/fashion.json",
+      layoutJson: fashionLayout,
+      themeJson: fashionTheme,
+      packageTier: "basic",
+      description: "Beta trial storefront landing page",
+    },
+  },
+
+  procorp: {
+    landing: {
+      name: "Procorp Landing Layout",
+      layoutJsonPath: "demo-layouts/marketplace.json",
+      themeJsonPath: "demo-themes/marketplace.json",
+      layoutJson: marketplaceLayout,
+      themeJson: marketplaceTheme,
+      packageTier: "premium",
+      description: "Procorp paid storefront landing page",
+    },
+  },
+
   electronics: {
     minimal: {
       name: "Minimal Electronics Layout",
