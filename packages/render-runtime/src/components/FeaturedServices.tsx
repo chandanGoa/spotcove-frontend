@@ -16,6 +16,7 @@ import { Star } from "lucide-react";
 export interface FeaturedServiceData {
   id: string;
   name: string;
+  vendorName?: string;
   description?: string;
   price?: number | string;
   slug?: string;
@@ -76,7 +77,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
   } = settings;
 
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
-  const resolvedPadding = toCssValue(paddingY ?? 64);
+  const resolvedPadding = toCssValue(paddingY ?? 96);
   const resolvedGap = toCssValue(gap ?? 24);
   const resolvedMaxWidth = toCssValue(maxWidth);
   const resolvedContainerPadding = toCssValue(containerPadding ?? 24);
@@ -98,7 +99,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
 
   return (
     <section
-      className={cn(settings.className, className)}
+      className={cn("!py-24 bg-[#F8FAFC]", settings.className, className)}
       style={{
         ...themeOverrideStyles,
         ...style,
@@ -107,7 +108,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
       }}
     >
       <div
-        className={cn({
+        className={cn("mx-auto w-full !max-w-7xl px-6", {
           "text-left": align === "left",
           "text-center": align === "center",
           "text-right": align === "right",
@@ -121,7 +122,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
         }}
       >
         <h2
-          className="font-bold text-foreground"
+          className="text-3xl font-bold tracking-tight text-[#0F172A]"
           style={{
             fontSize: "var(--text-3xl, 1.875rem)",
             fontFamily: "var(--font-heading, inherit)",
@@ -131,7 +132,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
           {title}
         </h2>
         <div
-          className={cn("grid", gridCols[columns] || gridCols[3])}
+          className={cn("grid gap-8", gridCols[columns] || gridCols[3])}
           style={{ gap: resolvedGap }}
         >
           {serviceList.map((service) => (
@@ -140,38 +141,43 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
               onClick={() => handleServiceClick(service)}
               className="cursor-pointer"
             >
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+              <Card className="group overflow-hidden rounded-2xl bg-white shadow-md border-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
                 {service.image && (
-                  <div className="relative aspect-square overflow-hidden">
+                  <div className="relative aspect-[4/3] overflow-hidden">
                     <img
                       src={service.image.src}
                       alt={service.image.alt || service.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                 )}
-                <CardContent style={{ padding: "var(--cards-padding, 1rem)" }}>
-                  <div className="flex items-start justify-between gap-2">
-                    <h3
-                      className="font-semibold text-card-foreground"
-                      style={{
-                        fontSize: "var(--text-lg, 1.125rem)",
-                        fontFamily: "var(--font-heading, inherit)",
-                      }}
-                    >
-                      {service.name}
-                    </h3>
+                <CardContent style={{ padding: "var(--cards-padding, 1.25rem)" }}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="text-left">
+                      <p className="text-xs uppercase tracking-wide text-[#475569]">
+                        {service.vendorName || "SpotCove Partner"}
+                      </p>
+                      <h3
+                        className="font-semibold text-[#0F172A]"
+                        style={{
+                          fontSize: "var(--text-lg, 1.125rem)",
+                          fontFamily: "var(--font-heading, inherit)",
+                        }}
+                      >
+                        {service.name}
+                      </h3>
+                    </div>
                     {showBadge && service.badge && (
                       <Badge variant="secondary">{service.badge}</Badge>
                     )}
                   </div>
                   {showDescription && service.description && (
                     <p
-                      className="text-muted-foreground"
+                      className="text-[#475569]"
                       style={{
                         fontSize: "var(--text-sm, 0.875rem)",
                         fontFamily: "var(--font-body, inherit)",
-                        marginTop: "var(--spacing-xs, 0.25rem)",
+                        marginTop: "var(--spacing-sm, 0.5rem)",
                       }}
                     >
                       {service.description}
@@ -184,7 +190,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                     >
                       <Star className="w-4 h-4 fill-accent text-accent" />
                       <span
-                        className="text-sm text-muted-foreground"
+                        className="text-sm text-[#475569]"
                         style={{ fontFamily: "var(--font-body, inherit)" }}
                       >
                         {service.rating}
@@ -193,7 +199,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                   )}
                   {service.price !== undefined && (
                     <div
-                      className="font-semibold text-foreground"
+                      className="font-bold text-[#2563EB]"
                       style={{
                         fontSize: "var(--text-lg, 1.125rem)",
                         marginTop: "var(--spacing-sm, 0.5rem)",
@@ -208,9 +214,11 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                 </CardContent>
                 <CardFooter
                   className="pt-0"
-                  style={{ padding: "var(--cards-padding, 1rem)" }}
+                  style={{ padding: "var(--cards-padding, 1.25rem)" }}
                 >
-                  <Button className="w-full">View Service</Button>
+                  <Button className="w-full bg-[#2563EB] text-white hover:bg-[#1E4FD1]">
+                    Book Service
+                  </Button>
                 </CardFooter>
               </Card>
             </div>

@@ -72,24 +72,26 @@ export const MainFooter: React.FC<MainFooterProps> = ({
   return (
     <footer
       className={cn(
-        "bg-muted-background mt-[80px] md:mt-[180px] border-t border-zinc-600",
+        "bg-[#0B1F3A] text-[#94A3B8] mt-20 md:mt-28 border-t border-[#122B4D]",
         settings.className,
         className
       )}
       style={{ ...themeOverrideStyles, ...style }}
     >
-      <div className="container pb-10 pt-4 md:pt-8">
-        <div className="grid grid-cols-3 gap-x-6 mb-[80px]">
+      <div className="container py-12">
+        <div className="grid gap-8 md:grid-cols-3 mb-10">
           {links.map((section, index) => (
             <div key={index}>
-              <p className="font-semibold mb-3">{section.title}</p>
-              <div className="flex flex-col gap-y-2 flex-wrap">
+              <p className="text-sm font-semibold uppercase tracking-wide mb-4 text-white">
+                {section.title}
+              </p>
+              <div className="flex flex-col gap-y-2 flex-wrap text-sm">
                 {section.items.map((item, idx) => (
                   <a
                     key={idx}
                     href={item.href}
                     onClick={(e) => handleLinkClick(e, item.href)}
-                    className="text-sm hover:text-primary transition-colors"
+                    className="text-[#94A3B8] hover:text-[#2563EB] transition-colors"
                   >
                     {item.title}
                   </a>
@@ -99,15 +101,15 @@ export const MainFooter: React.FC<MainFooterProps> = ({
           ))}
         </div>
 
-        <div className="flex gap-x-5 justify-between flex-col md:flex-row md:items-center items-start">
-          <div className="flex flex-col md:flex-row gap-x-5 md:items-center items-start mb-4 md:mb-0">
-            <div className="text-3xl font-bold">{brandName}</div>
-            <div className="text-[10px] font-light">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="text-2xl font-semibold text-white">{brandName}</div>
+            <div className="text-xs text-[#94A3B8]">
               <p>{address}</p>
               <p>
                 {phone} /{" "}
                 <a
-                  className="hover:underline hover:text-primary"
+                  className="hover:underline hover:text-[#2563EB]"
                   href={`mailto:${email}`}
                 >
                   {email}

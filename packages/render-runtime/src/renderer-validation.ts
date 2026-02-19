@@ -76,6 +76,7 @@ const COMPONENT_KNOWN_SETTINGS: Record<string, Set<string>> = {
     "backgroundImage",
     "buttonText",
     "buttonLink",
+    "secondaryButtonText",
   ]),
   "featured-products": new Set(["title", "limit", "showPrices"]),
   "featured-services": new Set([
@@ -119,6 +120,7 @@ const COMPONENT_KNOWN_SETTINGS: Record<string, Set<string>> = {
     "buttonText",
     "buttonLink",
     "secondaryText",
+    "bullets",
     "align",
     "paddingY",
     "maxWidth",
@@ -131,6 +133,7 @@ const COMPONENT_KNOWN_SETTINGS: Record<string, Set<string>> = {
     "buttonText",
     "buttonLink",
     "secondaryText",
+    "bullets",
     "align",
     "paddingY",
     "maxWidth",

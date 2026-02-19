@@ -57,8 +57,8 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
   } = settings;
 
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
-  const resolvedPadding = toCssValue(paddingY ?? 64);
-  const resolvedGap = toCssValue(gap ?? 24);
+  const resolvedPadding = toCssValue(paddingY ?? 96);
+  const resolvedGap = toCssValue(gap ?? 32);
   const resolvedMaxWidth = toCssValue(maxWidth);
   const resolvedContainerPadding = toCssValue(containerPadding ?? 24);
 
@@ -70,7 +70,11 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
 
   return (
     <section
-      className={cn("w-full", settings.className, className)}
+      className={cn(
+        "w-full bg-[#F8FAFC] text-[#0F172A] !py-24",
+        settings.className,
+        className,
+      )}
       style={{
         ...themeOverrideStyles,
         ...style,
@@ -79,7 +83,7 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
       }}
     >
       <div
-        className="mx-auto w-full"
+        className="mx-auto w-full !max-w-7xl px-6"
         style={{
           maxWidth: resolvedMaxWidth ?? "72rem",
           paddingLeft: resolvedContainerPadding,
@@ -95,7 +99,7 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
           style={{ marginBottom: "var(--spacing-xl, 2rem)" }}
         >
           <h2
-            className="font-bold text-foreground"
+            className="font-bold text-[#0F172A]"
             style={{
               fontSize: "var(--text-3xl, 1.875rem)",
               fontFamily: "var(--font-heading, inherit)",
@@ -105,7 +109,7 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
           </h2>
           {subtitle && (
             <p
-              className="text-muted-foreground"
+              className="text-[#475569]"
               style={{
                 fontSize: "var(--text-base, 1rem)",
                 fontFamily: "var(--font-body, inherit)",
@@ -118,43 +122,38 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
         </div>
 
         <div
-          className={cn("grid", gridCols[columns] || gridCols[3])}
+          className={cn("grid gap-8", gridCols[columns] || gridCols[3])}
           style={{ gap: resolvedGap }}
         >
           {steps.map((step, index) => (
             <div
               key={`${step.title}-${index}`}
-              className="rounded-xl border bg-card p-6 shadow-sm"
+              className="rounded-xl bg-white p-8 shadow-lg transition-shadow duration-200 hover:shadow-xl"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB] text-white text-sm font-semibold">
+                  {step.icon || index + 1}
+                </div>
                 <span
-                  className="text-xs uppercase tracking-wide text-muted-foreground"
+                  className="text-xs uppercase tracking-wide text-[#475569]"
                   style={{ fontFamily: "var(--font-body, inherit)" }}
                 >
                   Step {index + 1}
                 </span>
-                {step.icon && (
-                  <span
-                    className="text-primary text-sm"
-                    style={{ fontFamily: "var(--font-body, inherit)" }}
-                  >
-                    {step.icon}
-                  </span>
-                )}
               </div>
               <h3
-                className="font-semibold text-foreground"
+                className="font-semibold text-[#0F172A]"
                 style={{
                   fontSize: "var(--text-lg, 1.125rem)",
                   fontFamily: "var(--font-heading, inherit)",
-                  marginBottom: "var(--spacing-xs, 0.25rem)",
+                  marginBottom: "var(--spacing-sm, 0.5rem)",
                 }}
               >
                 {step.title}
               </h3>
               {step.description && (
                 <p
-                  className="text-muted-foreground"
+                  className="text-[#475569]"
                   style={{
                     fontSize: "var(--text-sm, 0.875rem)",
                     fontFamily: "var(--font-body, inherit)",

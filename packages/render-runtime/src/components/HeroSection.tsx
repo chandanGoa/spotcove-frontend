@@ -9,6 +9,7 @@ export interface HeroSectionSettings {
   title?: string;
   subtitle?: string;
   buttonText?: string;
+  secondaryButtonText?: string;
   image?: string;
   maxWidth?: number | string;
   align?: "left" | "center" | "right";
@@ -36,6 +37,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     title = "Welcome to Our Store",
     subtitle = "Discover amazing products and great deals",
     buttonText = "Shop Now",
+    secondaryButtonText = "Learn More",
     image,
     maxWidth,
     align = "left",
@@ -79,53 +81,54 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   // Reorder based on subtype (media-left keeps natural order, media-right reverses)
   const textElement = (
     <div
-      className={cn({
+      className={cn("mx-auto flex flex-col gap-6", {
         "lg:text-left": align === "left",
         "lg:text-center": align === "center",
         "lg:text-right": align === "right",
       })}
+      style={{ maxWidth: "42rem" }}
     >
       <h1
-        className="text-foreground"
+        className="text-white text-5xl font-bold tracking-tight md:text-7xl"
         style={{
-          fontSize: "var(--font-size-h1, 3.75rem)",
           fontFamily: "var(--font-heading, inherit)",
-          fontWeight: "var(--font-weight-bold, 700)",
-          lineHeight: "var(--leading-tight, 1.25)",
-          marginBottom: "var(--spacing-lg, 1.5rem)",
+          lineHeight: "1.1",
         }}
       >
         {title}
       </h1>
       <p
-        className="text-muted-foreground"
+        className="text-slate-200 text-lg md:text-xl"
         style={{
-          fontSize: "var(--font-size-xl, 1.25rem)",
           fontFamily: "var(--font-body, inherit)",
-          lineHeight: "var(--leading-normal, 1.5)",
-          marginBottom: "var(--spacing-xl, 2rem)",
+          lineHeight: "1.6",
         }}
       >
         {subtitle}
       </p>
-      <Button
-        size="lg"
-        className="text-primary-foreground"
-        style={{
-          background: "hsl(var(--button-primary, var(--primary)))",
-          borderRadius:
-            "var(--btn-primary-border-radius, var(--radius-md, 0.375rem))",
-          padding: "var(--btn-primary-padding, 0.5rem 1rem)",
-          fontSize: "var(--btn-primary-font-size, var(--font-size-base, 1rem))",
-          fontWeight:
-            "var(--btn-primary-font-weight, var(--font-weight-medium, 500))",
-          boxShadow: "var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1))",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+      <div
+        className={cn("flex flex-col gap-3 sm:flex-row", {
+          "justify-start": align === "left",
+          "justify-center": align === "center",
+          "justify-end": align === "right",
+        })}
       >
-        {buttonText}
-      </Button>
+        <Button
+          size="lg"
+          className="bg-[#2563EB] text-white shadow-lg hover:bg-[#1E4FD1]"
+        >
+          {buttonText}
+        </Button>
+        {secondaryButtonText ? (
+          <Button
+            size="lg"
+            variant="outline"
+            className="border-white/60 text-white hover:bg-white/10"
+          >
+            {secondaryButtonText}
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 
@@ -174,14 +177,18 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   return (
     <section
       className={cn(
-        "bg-gradient-to-r from-primary/10 to-secondary/10",
+        "relative overflow-hidden bg-[#0B1F3A] text-white",
         className,
       )}
       style={sectionStyle}
       {...rest}
     >
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#2563EB]/25 blur-3xl" />
+        <div className="absolute bottom-0 right-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+      </div>
       <div
-        className={cn("w-full", {
+        className={cn("relative z-10 w-full", {
           "text-left": align === "left",
           "text-center": align === "center",
           "text-right": align === "right",
