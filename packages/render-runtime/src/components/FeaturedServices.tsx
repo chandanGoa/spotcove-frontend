@@ -99,7 +99,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
 
   return (
     <section
-      className={cn("!py-24 bg-[#F8FAFC]", settings.className, className)}
+      className={cn("!py-24 bg-white", settings.className, className)}
       style={{
         ...themeOverrideStyles,
         ...style,
@@ -124,7 +124,6 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
         <h2
           className="text-3xl font-bold tracking-tight text-[#0F172A]"
           style={{
-            fontSize: "var(--text-3xl, 1.875rem)",
             fontFamily: "var(--font-heading, inherit)",
             marginBottom: "var(--spacing-xl, 2rem)",
           }}
@@ -141,20 +140,20 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
               onClick={() => handleServiceClick(service)}
               className="cursor-pointer"
             >
-              <Card className="group overflow-hidden rounded-2xl bg-white shadow-md border-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-                {service.image && (
-                  <div className="relative aspect-[4/3] overflow-hidden">
+              <Card className="group overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-2xl transition-all duration-300">
+                <div className="h-48 bg-slate-100 rounded-t-2xl overflow-hidden">
+                  {service.image ? (
                     <img
                       src={service.image.src}
                       alt={service.image.alt || service.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                  </div>
-                )}
+                  ) : null}
+                </div>
                 <CardContent style={{ padding: "var(--cards-padding, 1.25rem)" }}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="text-left">
-                      <p className="text-xs uppercase tracking-wide text-[#475569]">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">
                         {service.vendorName || "SpotCove Partner"}
                       </p>
                       <h3
@@ -173,7 +172,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                   </div>
                   {showDescription && service.description && (
                     <p
-                      className="text-[#475569]"
+                      className="text-slate-600"
                       style={{
                         fontSize: "var(--text-sm, 0.875rem)",
                         fontFamily: "var(--font-body, inherit)",
@@ -190,7 +189,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                     >
                       <Star className="w-4 h-4 fill-accent text-accent" />
                       <span
-                        className="text-sm text-[#475569]"
+                        className="text-sm text-slate-600"
                         style={{ fontFamily: "var(--font-body, inherit)" }}
                       >
                         {service.rating}
@@ -198,13 +197,12 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                     </div>
                   )}
                   {service.price !== undefined && (
-                    <div
-                      className="font-bold text-[#2563EB]"
-                      style={{
-                        fontSize: "var(--text-lg, 1.125rem)",
-                        marginTop: "var(--spacing-sm, 0.5rem)",
-                      }}
-                    >
+                  <div
+                    className="text-blue-600 text-lg font-semibold"
+                    style={{
+                      marginTop: "var(--spacing-sm, 0.5rem)",
+                    }}
+                  >
                       $
                       {typeof service.price === "number"
                         ? service.price.toFixed(2)
@@ -216,7 +214,7 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                   className="pt-0"
                   style={{ padding: "var(--cards-padding, 1.25rem)" }}
                 >
-                  <Button className="w-full bg-[#2563EB] text-white hover:bg-[#1E4FD1]">
+                  <Button className="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg">
                     Book Service
                   </Button>
                 </CardFooter>

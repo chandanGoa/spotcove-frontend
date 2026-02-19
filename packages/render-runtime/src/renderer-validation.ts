@@ -73,10 +73,17 @@ const COMPONENT_KNOWN_SETTINGS: Record<string, Set<string>> = {
   hero: new Set([
     "title",
     "subtitle",
+    "image",
     "backgroundImage",
     "buttonText",
     "buttonLink",
     "secondaryButtonText",
+    "maxWidth",
+    "align",
+    "paddingY",
+    "contentGap",
+    "containerPadding",
+    "subtype",
   ]),
   "featured-products": new Set(["title", "limit", "showPrices"]),
   "featured-services": new Set([

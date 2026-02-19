@@ -71,7 +71,7 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
   return (
     <section
       className={cn(
-        "w-full bg-[#F8FAFC] text-[#0F172A] !py-24",
+        "w-full bg-white text-[#0F172A] !py-24",
         settings.className,
         className,
       )}
@@ -99,9 +99,8 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
           style={{ marginBottom: "var(--spacing-xl, 2rem)" }}
         >
           <h2
-            className="font-bold text-[#0F172A]"
+            className="text-3xl font-bold text-[#0F172A]"
             style={{
-              fontSize: "var(--text-3xl, 1.875rem)",
               fontFamily: "var(--font-heading, inherit)",
             }}
           >
@@ -109,9 +108,8 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
           </h2>
           {subtitle && (
             <p
-              className="text-[#475569]"
+              className="text-lg text-slate-600"
               style={{
-                fontSize: "var(--text-base, 1rem)",
                 fontFamily: "var(--font-body, inherit)",
                 marginTop: "var(--spacing-sm, 0.5rem)",
               }}
@@ -128,14 +126,14 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
           {steps.map((step, index) => (
             <div
               key={`${step.title}-${index}`}
-              className="rounded-xl bg-white p-8 shadow-lg transition-shadow duration-200 hover:shadow-xl"
+              className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 p-8"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB] text-white text-sm font-semibold">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">
                   {step.icon || index + 1}
                 </div>
                 <span
-                  className="text-xs uppercase tracking-wide text-[#475569]"
+                  className="text-xs uppercase tracking-wide text-slate-500"
                   style={{ fontFamily: "var(--font-body, inherit)" }}
                 >
                   Step {index + 1}
@@ -153,7 +151,7 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
               </h3>
               {step.description && (
                 <p
-                  className="text-[#475569]"
+                  className="text-slate-600"
                   style={{
                     fontSize: "var(--text-sm, 0.875rem)",
                     fontFamily: "var(--font-body, inherit)",

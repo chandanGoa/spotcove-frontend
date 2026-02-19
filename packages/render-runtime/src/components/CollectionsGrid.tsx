@@ -57,7 +57,7 @@ export const CollectionsGrid: React.FC<CollectionsGridProps> = ({
 
   return (
     <section
-      className={cn("py-24 bg-[#F8FAFC]", settings.className, className)}
+      className={cn("py-24 bg-slate-50", settings.className, className)}
       style={{ ...themeOverrideStyles, ...style }}
     >
       <div className="max-w-7xl mx-auto px-6">
@@ -71,8 +71,8 @@ export const CollectionsGrid: React.FC<CollectionsGridProps> = ({
               onClick={() => handleCollectionClick(collection)}
               className="cursor-pointer"
             >
-              <Card className="group overflow-hidden rounded-2xl bg-white shadow-md border-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-                <div className="relative aspect-[4/3] before:absolute before:left-5 before:top-5 before:h-12 before:w-12 before:rounded-full before:bg-[#2563EB]/15 before:ring-1 before:ring-[#2563EB]/30 before:content-['']">
+              <Card className="group overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 min-h-[260px]">
+                <div className="relative aspect-[4/3]">
                   {collection.image ? (
                     <img
                       src={collection.image.src}
@@ -80,18 +80,21 @@ export const CollectionsGrid: React.FC<CollectionsGridProps> = ({
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="w-full h-full bg-white flex items-center justify-center">
-                      <span className="text-[#475569] text-sm">
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                      <span className="text-slate-500 text-sm">
                         {collection.label}
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-[#0F172A]">
+                  <div className="mb-3 flex items-center justify-center">
+                    <div className="h-14 w-14 rounded-full bg-blue-100" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#0F172A] text-center">
                     {collection.label}
                   </h3>
-                  <p className="text-sm text-[#475569] mt-1">
+                  <p className="text-sm text-slate-600 mt-1 text-center">
                     Explore category
                   </p>
                 </div>

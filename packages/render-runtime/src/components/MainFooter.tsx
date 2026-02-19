@@ -72,7 +72,7 @@ export const MainFooter: React.FC<MainFooterProps> = ({
   return (
     <footer
       className={cn(
-        "bg-[#0B1F3A] text-[#94A3B8] mt-20 md:mt-28 border-t border-[#122B4D]",
+        "bg-foreground text-background/70 mt-20 md:mt-28 border-t border-background/15",
         settings.className,
         className
       )}
@@ -82,7 +82,7 @@ export const MainFooter: React.FC<MainFooterProps> = ({
         <div className="grid gap-8 md:grid-cols-3 mb-10">
           {links.map((section, index) => (
             <div key={index}>
-              <p className="text-sm font-semibold uppercase tracking-wide mb-4 text-white">
+              <p className="text-sm font-semibold uppercase tracking-wide mb-4 text-background">
                 {section.title}
               </p>
               <div className="flex flex-col gap-y-2 flex-wrap text-sm">
@@ -91,7 +91,7 @@ export const MainFooter: React.FC<MainFooterProps> = ({
                     key={idx}
                     href={item.href}
                     onClick={(e) => handleLinkClick(e, item.href)}
-                    className="text-[#94A3B8] hover:text-[#2563EB] transition-colors"
+                    className="text-background/70 hover:text-primary transition-colors"
                   >
                     {item.title}
                   </a>
@@ -103,13 +103,13 @@ export const MainFooter: React.FC<MainFooterProps> = ({
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="text-2xl font-semibold text-white">{brandName}</div>
-            <div className="text-xs text-[#94A3B8]">
+            <div className="text-2xl font-semibold text-background">{brandName}</div>
+            <div className="text-xs text-background/70">
               <p>{address}</p>
               <p>
                 {phone} /{" "}
                 <a
-                  className="hover:underline hover:text-[#2563EB]"
+                  className="hover:underline hover:text-primary"
                   href={`mailto:${email}`}
                 >
                   {email}

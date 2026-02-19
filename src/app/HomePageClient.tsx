@@ -1,6 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
+  applyThemeToRoot,
+  getThemeOverrideStyles,
   VendorLayoutRenderer,
   VendorThemeProvider,
 } from "@spotcove/render-runtime";
@@ -16,6 +19,15 @@ export default function HomePageClient({
   layoutJson,
   themeJson,
 }: HomePageClientProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    applyThemeToRoot(document.documentElement, themeJson);
+    if (rootRef.current) {
+      applyThemeToRoot(rootRef.current, themeJson);
+    }
+  }, [themeJson]);
+
   const componentData: Record<string, any> = {};
 
   if (layoutJson?.elements) {
@@ -60,10 +72,17 @@ export default function HomePageClient({
     });
   }
 
+  const themeScopeStyle = getThemeOverrideStyles(themeJson);
+
   return (
     <div
-      className="min-h-screen"
-      style={{ backgroundColor: "hsl(var(--background))" }}
+      ref={rootRef}
+      className="min-h-screen bg-white"
+      style={{
+        ...themeScopeStyle,
+        backgroundColor: "#ffffff",
+      }}
+      data-theme-scope="homepage"
     >
       <VendorThemeProvider
         themeSettings={themeJson}

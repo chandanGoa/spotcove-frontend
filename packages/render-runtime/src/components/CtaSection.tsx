@@ -60,14 +60,8 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
   const resolvedMaxWidth = toCssValue(maxWidth);
   const resolvedContainerPadding = toCssValue(containerPadding ?? 24);
 
-  const variantClass =
-    variant === "vendor"
-      ? "bg-[#E8F1FF] border-[#C7DBFF]"
-      : variant === "promoter"
-        ? "bg-[#F1F5F9] border-[#E2E8F0]"
-        : "bg-[#F8FAFC] border-[#E2E8F0]";
-  const bulletClass =
-    variant === "promoter" ? "bg-secondary/60" : "bg-primary/60";
+  const variantClass = "bg-[#0B1F3A] text-white";
+  const bulletClass = "bg-blue-600";
 
   const resolvedBullets =
     bullets && bullets.length > 0
@@ -98,7 +92,7 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
     >
       <div
         className={cn(
-          "mx-auto w-full !max-w-7xl px-6 rounded-2xl border p-8 shadow-sm md:p-10",
+          "mx-auto w-full !max-w-7xl px-6 rounded-2xl p-10 text-center",
           variantClass,
           {
             "text-left": align === "left",
@@ -113,9 +107,8 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
         }}
       >
         <h2
-          className="text-4xl font-bold tracking-tight text-[#0F172A]"
+          className="text-4xl font-bold tracking-tight text-white"
           style={{
-            fontSize: "var(--text-3xl, 1.875rem)",
             fontFamily: "var(--font-heading, inherit)",
           }}
         >
@@ -123,9 +116,8 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
         </h2>
         {subtitle && (
           <p
-            className="text-[#475569]"
+            className="text-slate-300"
             style={{
-              fontSize: "var(--text-base, 1rem)",
               fontFamily: "var(--font-body, inherit)",
               marginTop: "var(--spacing-sm, 0.5rem)",
             }}
@@ -134,7 +126,7 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
           </p>
         )}
         {resolvedBullets.length > 0 && (
-          <ul className="mt-5 space-y-2 text-sm text-[#475569]">
+          <ul className="mt-5 space-y-2 text-sm text-slate-300">
             {resolvedBullets.map((bullet, index) => (
               <li key={`${bullet}-${index}`} className="flex items-start gap-2">
                 <span className={cn("mt-1 h-2 w-2 rounded-full", bulletClass)} />
@@ -153,12 +145,12 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
           })}
           style={{ marginTop: "var(--spacing-lg, 1.5rem)" }}
         >
-          <Button asChild className="bg-[#2563EB] text-white hover:bg-[#1E4FD1]">
+          <Button asChild className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-3 rounded-lg">
             <a href={buttonLink}>{buttonText}</a>
           </Button>
           {secondaryText && (
             <span
-              className="text-sm text-muted-foreground"
+              className="text-sm text-slate-300"
               style={{ fontFamily: "var(--font-body, inherit)" }}
             >
               {secondaryText}

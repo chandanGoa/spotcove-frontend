@@ -12,11 +12,13 @@ export interface HeroSectionSettings {
   secondaryButtonText?: string;
   image?: string;
   maxWidth?: number | string;
-  align?: "left" | "center" | "right";
-  paddingY?: number | string;
-  contentGap?: number | string;
-  containerPadding?: number | string;
+  align?: "left" | "center";
+  paddingY?: "small" | "medium" | "large" | number;
+  contentGap?: "small" | "medium" | "large" | number;
+  containerPadding?: string;
   subtype?:
+    | "dark"
+    | "light"
     | "hero-media-left"
     | "hero-media-right"
     | "hero-centered"
@@ -30,6 +32,60 @@ export interface HeroSectionProps extends React.ComponentProps<"div"> {
 const toCssValue = (value?: string | number) =>
   typeof value === "number" ? `${value}px` : value;
 
+const alignMap = {
+  left: "text-left items-start",
+  center: "text-center items-center",
+} as const;
+
+const paddingMap = {
+  small: "py-20",
+  medium: "py-24",
+  large: "py-32",
+} as const;
+
+const gapMap = {
+  small: "gap-4",
+  medium: "gap-6",
+  large: "gap-10",
+} as const;
+
+const subtypeMap = {
+  dark: "bg-[#0B1F3A] text-white",
+  light: "bg-[#0B1F3A] text-white",
+} as const;
+
+function resolvePaddingClass(
+  paddingY: HeroSectionSettings["paddingY"],
+): (typeof paddingMap)[keyof typeof paddingMap] {
+  if (paddingY && typeof paddingY === "string" && paddingY in paddingMap) {
+    return paddingMap[paddingY as keyof typeof paddingMap];
+  }
+
+  if (typeof paddingY === "number") {
+    if (paddingY >= 96) return paddingMap.large;
+    if (paddingY >= 72) return paddingMap.medium;
+    return paddingMap.small;
+  }
+
+  return paddingMap.medium;
+}
+
+function resolveGapClass(
+  contentGap: HeroSectionSettings["contentGap"],
+): (typeof gapMap)[keyof typeof gapMap] {
+  if (contentGap && typeof contentGap === "string" && contentGap in gapMap) {
+    return gapMap[contentGap as keyof typeof gapMap];
+  }
+
+  if (typeof contentGap === "number") {
+    if (contentGap >= 40) return gapMap.large;
+    if (contentGap >= 24) return gapMap.medium;
+    return gapMap.small;
+  }
+
+  return gapMap.medium;
+}
+
 export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   const { className, style, children, settings, themeOverride, ...rest } =
     props;
@@ -40,7 +96,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     secondaryButtonText = "Learn More",
     image,
     maxWidth,
-    align = "left",
+    align = "center",
     paddingY,
     contentGap,
     containerPadding,
@@ -48,48 +104,33 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   } = settings || {};
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
   const resolvedMaxWidth = toCssValue(maxWidth);
-  const resolvedPadding = toCssValue(paddingY);
-  const resolvedGap = toCssValue(contentGap ?? "3rem");
-  const resolvedContainerPadding = toCssValue(containerPadding ?? "1.5rem");
+  const resolvedAlign = align === "left" ? "left" : "center";
+  const resolvedPaddingClass = resolvePaddingClass(paddingY);
+  const resolvedGapClass = resolveGapClass(contentGap);
+  const resolvedSubtype = subtype === "dark" ? "dark" : "light";
+  const resolvedContainerPadding =
+    typeof containerPadding === "string" && containerPadding.trim().length > 0
+      ? containerPadding
+      : "px-6";
+  const resolvedContainerPaddingStyle =
+    typeof containerPadding === "number"
+      ? {
+          paddingLeft: `${containerPadding}px`,
+          paddingRight: `${containerPadding}px`,
+        }
+      : undefined;
   const sectionStyle: React.CSSProperties = {
     ...themeOverrideStyles,
     ...style,
   };
 
-  if (resolvedPadding) {
-    sectionStyle.paddingTop = resolvedPadding;
-    sectionStyle.paddingBottom = resolvedPadding;
-  }
-
-  // Determine layout based on subtype
-  const isMediaLeft = subtype === "hero-media-left";
-  const isMediaRight = subtype === "hero-media-right";
-  const isSplit = subtype === "hero-split";
-  const isCentered =
-    subtype === "hero-centered" || (!isMediaLeft && !isMediaRight && !isSplit);
-
-  // For centered layout, don't render image
-  const shouldRenderImage = image && !isCentered;
-
-  // For split layout, treat image and text equally
-  const gridClasses = isCentered
-    ? "grid grid-cols-1 items-center"
-    : isSplit
-      ? "grid grid-cols-1 lg:grid-cols-2 items-center"
-      : "grid grid-cols-1 lg:grid-cols-2 items-center";
-
-  // Reorder based on subtype (media-left keeps natural order, media-right reverses)
   const textElement = (
-    <div
-      className={cn("mx-auto flex flex-col gap-6", {
-        "lg:text-left": align === "left",
-        "lg:text-center": align === "center",
-        "lg:text-right": align === "right",
-      })}
-      style={{ maxWidth: "42rem" }}
-    >
+    <div className="flex max-w-3xl flex-col gap-6">
       <h1
-        className="text-white text-5xl font-bold tracking-tight md:text-7xl"
+        className={cn("text-6xl font-extrabold tracking-tight", {
+          "text-white": resolvedSubtype === "dark",
+          "text-white": resolvedSubtype === "light",
+        })}
         style={{
           fontFamily: "var(--font-heading, inherit)",
           lineHeight: "1.1",
@@ -98,7 +139,10 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
         {title}
       </h1>
       <p
-        className="text-slate-200 text-lg md:text-xl"
+        className={cn("text-lg text-slate-300", {
+          "text-slate-300": resolvedSubtype === "dark",
+          "text-slate-300": resolvedSubtype === "light",
+        })}
         style={{
           fontFamily: "var(--font-body, inherit)",
           lineHeight: "1.6",
@@ -108,14 +152,13 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
       </p>
       <div
         className={cn("flex flex-col gap-3 sm:flex-row", {
-          "justify-start": align === "left",
-          "justify-center": align === "center",
-          "justify-end": align === "right",
+          "justify-start": resolvedAlign === "left",
+          "justify-center": resolvedAlign === "center",
         })}
       >
         <Button
           size="lg"
-          className="bg-[#2563EB] text-white shadow-lg hover:bg-[#1E4FD1]"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
         >
           {buttonText}
         </Button>
@@ -123,7 +166,12 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           <Button
             size="lg"
             variant="outline"
-            className="border-white/60 text-white hover:bg-white/10"
+            className={cn({
+              "border border-white text-white":
+                resolvedSubtype === "dark",
+              "border border-white text-white":
+                resolvedSubtype === "light",
+            })}
           >
             {secondaryButtonText}
           </Button>
@@ -132,78 +180,42 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     </div>
   );
 
-  const imageElement = shouldRenderImage && (
-    <div
-      className="relative"
-      style={{
-        borderRadius: "var(--radius-lg, 0.5rem)",
-      }}
-    >
+  const imageElement = image && (
+    <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl shadow-lg">
       <img
         src={image}
         alt="Hero"
-        className="w-full h-auto shadow-lg"
-        style={{
-          borderRadius: "var(--radius-lg, 0.5rem)",
-        }}
+        className="h-auto w-full"
       />
     </div>
   );
 
-  // Render content based on subtype
-  const renderContent = () => {
-    if (isCentered) {
-      return textElement;
-    }
-
-    if (isMediaRight) {
-      return (
-        <>
-          {textElement}
-          {imageElement}
-        </>
-      );
-    }
-
-    // Default: media-left (or no subtype)
-    return (
-      <>
-        {imageElement}
-        {textElement}
-      </>
-    );
-  };
-
   return (
     <section
       className={cn(
-        "relative overflow-hidden bg-[#0B1F3A] text-white",
+        "relative overflow-hidden",
+        resolvedPaddingClass,
+        "py-32",
+        subtypeMap[resolvedSubtype],
         className,
       )}
       style={sectionStyle}
       {...rest}
     >
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#2563EB]/25 blur-3xl" />
-        <div className="absolute bottom-0 right-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-      </div>
       <div
-        className={cn("relative z-10 w-full", {
-          "text-left": align === "left",
-          "text-center": align === "center",
-          "text-right": align === "right",
-        })}
+        className={cn(
+          "max-w-7xl mx-auto flex flex-col",
+          alignMap[resolvedAlign],
+          resolvedGapClass,
+          resolvedContainerPadding,
+        )}
         style={{
           maxWidth: resolvedMaxWidth,
-          marginLeft: align === "left" ? undefined : "auto",
-          marginRight: align === "right" ? undefined : "auto",
-          paddingLeft: resolvedContainerPadding,
-          paddingRight: resolvedContainerPadding,
+          ...resolvedContainerPaddingStyle,
         }}
       >
-        <div className={gridClasses} style={{ gap: resolvedGap }}>
-          {renderContent()}
-        </div>
+        {textElement}
+        {imageElement}
       </div>
       {children}
     </section>
@@ -214,6 +226,6 @@ HeroSection.displayName = "HeroSection";
 (HeroSection as any).__metadata = {
   tier: 3,
   description:
-    "Hero banner with title, subtitle, CTA button, and optional image - supports subtype-based layout (hero-media-left, hero-media-right, hero-centered, hero-split)",
+    "Hero banner with title, subtitle, CTA button, and optional image - supports align, spacing, container, and light/dark subtype settings",
   settingsType: "HeroSectionSettings",
 };
