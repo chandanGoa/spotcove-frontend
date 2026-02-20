@@ -1,6 +1,6 @@
 /**
  * CollectionsGrid - Presentation Component (Tier 2 Refactored)
- * 
+ *
  * NO data fetching - accepts all data via props
  * NO useEffect, NO Supabase, NO API calls
  * Pure presentation logic only

@@ -1,6 +1,6 @@
 /**
  * MainFooter - Static Footer (Tier 1)
- * 
+ *
  * Simplified version for render runtime
  * No dynamic data, no forms, pure static content
  */
@@ -74,7 +74,7 @@ export const MainFooter: React.FC<MainFooterProps> = ({
       className={cn(
         "bg-foreground text-background/70 mt-20 md:mt-28 border-t border-background/15",
         settings.className,
-        className
+        className,
       )}
       style={{ ...themeOverrideStyles, ...style }}
     >
@@ -103,7 +103,9 @@ export const MainFooter: React.FC<MainFooterProps> = ({
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="text-2xl font-semibold text-background">{brandName}</div>
+            <div className="text-2xl font-semibold text-background">
+              {brandName}
+            </div>
             <div className="text-xs text-background/70">
               <p>{address}</p>
               <p>

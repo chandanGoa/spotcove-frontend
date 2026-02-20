@@ -167,10 +167,8 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
             size="lg"
             variant="outline"
             className={cn({
-              "border border-white text-white":
-                resolvedSubtype === "dark",
-              "border border-white text-white":
-                resolvedSubtype === "light",
+              "border border-white text-white": resolvedSubtype === "dark",
+              "border border-white text-white": resolvedSubtype === "light",
             })}
           >
             {secondaryButtonText}
@@ -182,11 +180,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
 
   const imageElement = image && (
     <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl shadow-lg">
-      <img
-        src={image}
-        alt="Hero"
-        className="h-auto w-full"
-      />
+      <img src={image} alt="Hero" className="h-auto w-full" />
     </div>
   );
 

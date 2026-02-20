@@ -150,7 +150,9 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                     />
                   ) : null}
                 </div>
-                <CardContent style={{ padding: "var(--cards-padding, 1.25rem)" }}>
+                <CardContent
+                  style={{ padding: "var(--cards-padding, 1.25rem)" }}
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="text-left">
                       <p className="text-xs uppercase tracking-wide text-slate-500">
@@ -197,12 +199,12 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
                     </div>
                   )}
                   {service.price !== undefined && (
-                  <div
-                    className="text-blue-600 text-lg font-semibold"
-                    style={{
-                      marginTop: "var(--spacing-sm, 0.5rem)",
-                    }}
-                  >
+                    <div
+                      className="text-blue-600 text-lg font-semibold"
+                      style={{
+                        marginTop: "var(--spacing-sm, 0.5rem)",
+                      }}
+                    >
                       $
                       {typeof service.price === "number"
                         ? service.price.toFixed(2)

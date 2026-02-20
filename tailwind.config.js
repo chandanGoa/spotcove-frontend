@@ -1,3 +1,5 @@
+import tailwindcssAnimate from "tailwindcss-animate";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
@@ -82,5 +84,5 @@ export default {
     "hover:bg-muted",
     "hover:text-primary",
   ],
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 };
