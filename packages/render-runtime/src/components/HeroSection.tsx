@@ -127,10 +127,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   const textElement = (
     <div className="flex max-w-3xl flex-col gap-6">
       <h1
-        className={cn("text-6xl font-extrabold tracking-tight", {
-          "text-white": resolvedSubtype === "dark",
-          "text-white": resolvedSubtype === "light",
-        })}
+        className="text-6xl font-extrabold tracking-tight text-white"
         style={{
           fontFamily: "var(--font-heading, inherit)",
           lineHeight: "1.1",
@@ -139,10 +136,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
         {title}
       </h1>
       <p
-        className={cn("text-lg text-slate-300", {
-          "text-slate-300": resolvedSubtype === "dark",
-          "text-slate-300": resolvedSubtype === "light",
-        })}
+        className="text-lg text-slate-300"
         style={{
           fontFamily: "var(--font-body, inherit)",
           lineHeight: "1.6",
@@ -166,10 +160,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           <Button
             size="lg"
             variant="outline"
-            className={cn({
-              "border border-white text-white": resolvedSubtype === "dark",
-              "border border-white text-white": resolvedSubtype === "light",
-            })}
+            className="border border-white text-white"
           >
             {secondaryButtonText}
           </Button>
