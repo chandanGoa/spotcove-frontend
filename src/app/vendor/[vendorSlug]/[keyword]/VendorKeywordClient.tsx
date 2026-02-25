@@ -29,7 +29,9 @@ export default function VendorKeywordClient({
 }: VendorKeywordClientProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [vendorData, setVendorData] = useState<VendorPublicPayload | null>(null);
+  const [vendorData, setVendorData] = useState<VendorPublicPayload | null>(
+    null,
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -60,7 +62,9 @@ export default function VendorKeywordClient({
         console.log("Vendor payload checks:", {
           hasLayoutJSON: Boolean(responseLayout),
           hasThemeJSON: Boolean(responseTheme),
-          productsCount: Array.isArray(responseProducts) ? responseProducts.length : 0,
+          productsCount: Array.isArray(responseProducts)
+            ? responseProducts.length
+            : 0,
         });
 
         if (mounted) {
@@ -73,7 +77,9 @@ export default function VendorKeywordClient({
         );
 
         if (mounted) {
-          setError(err instanceof Error ? err.message : "Failed to load vendor data");
+          setError(
+            err instanceof Error ? err.message : "Failed to load vendor data",
+          );
         }
       } finally {
         if (mounted) {
@@ -136,7 +142,9 @@ export default function VendorKeywordClient({
   if (error || !layoutJson || !themeJson) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-destructive">{error ?? "Vendor data is incomplete."}</p>
+        <p className="text-destructive">
+          {error ?? "Vendor data is incomplete."}
+        </p>
       </div>
     );
   }

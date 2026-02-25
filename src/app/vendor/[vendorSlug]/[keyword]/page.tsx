@@ -113,10 +113,5 @@ export default async function VendorKeywordPage({
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }
 
-  return (
-    <VendorKeywordClient
-      vendorSlug={vendorSlug}
-      keyword={keyword}
-    />
-  );
+  return <VendorKeywordClient vendorSlug={vendorSlug} keyword={keyword} />;
 }
