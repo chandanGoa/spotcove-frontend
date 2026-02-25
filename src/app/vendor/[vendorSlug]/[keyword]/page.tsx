@@ -2,7 +2,7 @@
  * Vendor Keyword Page
  */
 
-import { getVendorLayoutConfig, VENDOR_REGISTRY } from "@/data/vendor-registry";
+import { VENDOR_REGISTRY } from "@/data/vendor-registry";
 import { getVendorPlan, isTrialExpired } from "@/data/vendor-plans";
 import { notFound } from "next/navigation";
 import VendorKeywordClient from "./VendorKeywordClient";
@@ -107,19 +107,9 @@ export default async function VendorKeywordPage({
     );
   }
 
-  const layoutConfig = getVendorLayoutConfig(vendorSlug, keyword);
+  const vendorEntry = VENDOR_REGISTRY[vendorSlug];
 
-  if (!layoutConfig) {
-    return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
-  }
-
-  const layoutJson = layoutConfig.layoutJson;
-  const themeJson = layoutConfig.themeJson;
-
-  if (!layoutJson || !themeJson) {
-    console.error(
-      `Missing vendor layout/theme JSON for ${vendorSlug}/${keyword}.`,
-    );
+  if (!vendorEntry || !vendorEntry[keyword]) {
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }
 
@@ -127,9 +117,6 @@ export default async function VendorKeywordPage({
     <VendorKeywordClient
       vendorSlug={vendorSlug}
       keyword={keyword}
-      layoutConfig={layoutConfig}
-      layoutJson={layoutJson}
-      themeJson={themeJson}
     />
   );
 }

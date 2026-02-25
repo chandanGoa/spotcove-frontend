@@ -3,33 +3,104 @@
  */
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import {
   VendorLayoutRenderer,
   VendorThemeProvider,
 } from "@spotcove/render-runtime";
-import { VendorLayoutEntry } from "@/data/vendor-registry";
-import demoProducts from "@/data/demo-products.json";
-import demoCollections from "@/data/demo-collections.json";
 
 interface VendorKeywordClientProps {
   vendorSlug: string;
-  keyword: string;
-  layoutConfig: VendorLayoutEntry;
-  layoutJson: any;
-  themeJson: any;
+  keyword?: string;
+}
+
+interface VendorPublicPayload {
+  layoutJSON?: any;
+  layoutJson?: any;
+  themeJSON?: any;
+  themeJson?: any;
+  products?: any[];
+  collections?: any[];
 }
 
 export default function VendorKeywordClient({
   vendorSlug,
-  keyword,
-  layoutConfig,
-  layoutJson,
-  themeJson,
+  keyword = "home",
 }: VendorKeywordClientProps) {
-  // Prepare component data
-  const componentData: Record<string, any> = {};
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [vendorData, setVendorData] = useState<VendorPublicPayload | null>(null);
 
-  if (layoutJson?.elements) {
+  useEffect(() => {
+    let mounted = true;
+
+    const loadVendorData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_CORE_URL}/api/public/vendor/${vendorSlug}`,
+        );
+
+        console.log("Vendor API status:", res.status);
+
+        if (!res.ok) {
+          console.error("Vendor API fetch failed with status:", res.status);
+          throw new Error(`Failed to load vendor data (${res.status})`);
+        }
+
+        const data: VendorPublicPayload = await res.json();
+        console.log("Vendor API Response:", data);
+
+        const responseLayout = data.layoutJSON ?? data.layoutJson;
+        const responseTheme = data.themeJSON ?? data.themeJson;
+        const responseProducts = data.products ?? [];
+
+        console.log("Vendor payload checks:", {
+          hasLayoutJSON: Boolean(responseLayout),
+          hasThemeJSON: Boolean(responseTheme),
+          productsCount: Array.isArray(responseProducts) ? responseProducts.length : 0,
+        });
+
+        if (mounted) {
+          setVendorData(data);
+        }
+      } catch (err) {
+        console.error(
+          "Vendor API fetch error:",
+          err instanceof Error ? err.message : "Failed to load vendor data",
+        );
+
+        if (mounted) {
+          setError(err instanceof Error ? err.message : "Failed to load vendor data");
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadVendorData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [vendorSlug]);
+
+  const layoutJson = vendorData?.layoutJSON ?? vendorData?.layoutJson;
+  const themeJson = vendorData?.themeJSON ?? vendorData?.themeJson;
+  const products = vendorData?.products ?? [];
+  const collections = vendorData?.collections ?? [];
+
+  const componentData = useMemo(() => {
+    const data: Record<string, any> = {};
+
+    if (!layoutJson?.elements) {
+      return data;
+    }
+
     layoutJson.elements.forEach((element: any) => {
       if (element.components) {
         element.components.forEach((component: any) => {
@@ -37,39 +108,37 @@ export default function VendorKeywordClient({
             component.type === "product-grid" ||
             component.type === "featured-products"
           ) {
-            componentData[component.id] = {
-              products: demoProducts.map((p) => ({
-                id: p.id,
-                name: p.name,
-                description: p.description,
-                price: p.price,
-                slug: p.slug,
-                rating: p.rating,
-                badge: p.badge,
-                image: {
-                  src: "/placeholder.jpg",
-                  alt: p.medias?.alt || p.name,
-                },
-              })),
+            data[component.id] = {
+              products,
             };
           }
 
           if (component.type === "collections") {
-            componentData[component.id] = {
-              collections: demoCollections.map((c) => ({
-                id: c.id,
-                label: c.label,
-                slug: c.slug,
-                image: {
-                  src: "/placeholder.jpg",
-                  alt: c.medias?.alt || c.label,
-                },
-              })),
+            data[component.id] = {
+              collections,
             };
           }
         });
       }
     });
+
+    return data;
+  }, [collections, layoutJson, products]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading vendor data...</p>
+      </div>
+    );
+  }
+
+  if (error || !layoutJson || !themeJson) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-destructive">{error ?? "Vendor data is incomplete."}</p>
+      </div>
+    );
   }
 
   return (
@@ -79,10 +148,7 @@ export default function VendorKeywordClient({
     >
       <div className="bg-primary text-primary-foreground px-4 py-3 text-center text-sm font-medium">
         <div className="container mx-auto">
-          Vendor: {vendorSlug} - {layoutConfig.name}
-          <span className="ml-4 px-2 py-1 bg-white/20 rounded text-xs">
-            {layoutConfig.packageTier.toUpperCase()}
-          </span>
+          Vendor: {vendorSlug} / {keyword}
         </div>
       </div>
 
