@@ -16,11 +16,10 @@ interface VendorKeywordClientProps {
 
 interface VendorPublicPayload {
   layoutJSON?: any;
-  layoutJson?: any;
   themeJSON?: any;
-  themeJson?: any;
   products?: any[];
   collections?: any[];
+  error?: string;
 }
 
 export default function VendorKeywordClient({
@@ -42,7 +41,7 @@ export default function VendorKeywordClient({
         setError(null);
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_CORE_URL}/api/public/vendor/${vendorSlug}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/storefront/vendor/${vendorSlug}`,
         );
 
         console.log("Vendor API status:", res.status);
@@ -55,8 +54,12 @@ export default function VendorKeywordClient({
         const data: VendorPublicPayload = await res.json();
         console.log("Vendor API Response:", data);
 
-        const responseLayout = data.layoutJSON ?? data.layoutJson;
-        const responseTheme = data.themeJSON ?? data.themeJson;
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        const responseLayout = data.layoutJSON;
+        const responseTheme = data.themeJSON;
         const responseProducts = data.products ?? [];
 
         console.log("Vendor payload checks:", {
@@ -95,8 +98,8 @@ export default function VendorKeywordClient({
     };
   }, [vendorSlug]);
 
-  const layoutJson = vendorData?.layoutJSON ?? vendorData?.layoutJson;
-  const themeJson = vendorData?.themeJSON ?? vendorData?.themeJson;
+  const layoutJson = vendorData?.layoutJSON;
+  const themeJson = vendorData?.themeJSON;
   const products = vendorData?.products ?? [];
   const collections = vendorData?.collections ?? [];
 
