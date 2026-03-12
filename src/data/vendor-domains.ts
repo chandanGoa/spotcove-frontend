@@ -9,6 +9,5 @@ export const VENDOR_DOMAIN_MAP: Record<string, string> = Object.fromEntries(
   (vendorDomains as VendorDomainEntry[]).map((entry) => [
     entry.domain.toLowerCase(),
     entry.vendorSlug,
-  ])
+  ]),
 );
-

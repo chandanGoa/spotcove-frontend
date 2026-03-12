@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   if (mappedVendorSlug && isAdminPath) {
     const targetUrl = new URL(
       `/${mappedVendorSlug}${pathname}`,
-      "https://vendor.spotcove.com"
+      "https://vendor.spotcove.com",
     );
     targetUrl.search = url.search;
     return NextResponse.redirect(targetUrl, 308);
@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
       if (isAdminPath) {
         const targetUrl = new URL(
           `/${subdomain}${pathname}`,
-          "https://vendor.spotcove.com"
+          "https://vendor.spotcove.com",
         );
         targetUrl.search = url.search;
         return NextResponse.redirect(targetUrl, 308);
