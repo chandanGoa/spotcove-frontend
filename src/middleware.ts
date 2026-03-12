@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const hostWithoutPort = host.split(":")[0].toLowerCase();
   const isIpAddress = /^\d+\.\d+\.\d+\.\d+$/.test(hostWithoutPort);
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
 
   let response = NextResponse.next({
     request: {
@@ -27,7 +28,7 @@ export async function middleware(request: NextRequest) {
   const minParts = isLocalhostDomain ? 2 : 3;
 
   const mappedVendorSlug = CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort];
-  if (mappedVendorSlug && !pathname.startsWith("/api/")) {
+  if (mappedVendorSlug && !pathname.startsWith("/api/") && !isAdminPath) {
     const vendorPlan = getVendorPlan(mappedVendorSlug);
 
     if (!vendorPlan || vendorPlan.plan !== "paid") {
@@ -55,6 +56,9 @@ export async function middleware(request: NextRequest) {
       subdomain !== "demo" &&
       subdomain !== "localhost"
     ) {
+      if (isAdminPath || pathname.startsWith("/api/")) {
+        return response;
+      }
       const vendorSlug = subdomain;
       const vendorPlan = getVendorPlan(vendorSlug);
 
