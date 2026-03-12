@@ -1,11 +1,7 @@
 // frontend/src/middleware.ts
 import { NextResponse, type NextRequest } from "next/server";
+import { VENDOR_DOMAIN_MAP } from "@/data/vendor-domains";
 import { getVendorPlan } from "@/data/vendor-plans";
-
-const CUSTOM_DOMAIN_VENDOR_MAP: Record<string, string> = {
-  "moonsoftlabs.com": "moonsoft",
-  "www.moonsoftlabs.com": "moonsoft",
-};
 
 export async function middleware(request: NextRequest) {
   const url = new URL(request.url);
@@ -21,13 +17,23 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  const mappedVendorSlug = VENDOR_DOMAIN_MAP[hostWithoutPort];
+  // Admin redirect for custom domains
+  if (mappedVendorSlug && isAdminPath) {
+    const targetUrl = new URL(
+      `/${mappedVendorSlug}${pathname}`,
+      "https://vendor.spotcove.com"
+    );
+    targetUrl.search = url.search;
+    return NextResponse.redirect(targetUrl, 308);
+  }
+
   // Subdomain-to-Path Rewrite
   const hostParts = hostWithoutPort.split(".");
   const isLocalhostDomain = hostWithoutPort.includes("localhost");
   const isVercelDomain = hostWithoutPort.endsWith(".vercel.app");
   const minParts = isLocalhostDomain ? 2 : 3;
 
-  const mappedVendorSlug = CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort];
   if (mappedVendorSlug && !pathname.startsWith("/api/") && !isAdminPath) {
     const vendorPlan = getVendorPlan(mappedVendorSlug);
 
@@ -56,6 +62,26 @@ export async function middleware(request: NextRequest) {
       subdomain !== "demo" &&
       subdomain !== "localhost"
     ) {
+      // Admin on vendor subdomain should resolve to /vendor/{slug}/admin
+      if (isAdminPath) {
+        const rewritePath = `/vendor/${subdomain}${pathname}`;
+        const rewriteUrl = new URL(rewritePath, request.url);
+        rewriteUrl.search = url.search;
+
+        const rewriteResponse = NextResponse.rewrite(rewriteUrl);
+        rewriteResponse.cookies.set("vendor_slug", subdomain);
+        rewriteResponse.cookies.set("is_demo", "false");
+
+        return rewriteResponse;
+      }
+      if (isAdminPath) {
+        const targetUrl = new URL(
+          `/${subdomain}${pathname}`,
+          "https://vendor.spotcove.com"
+        );
+        targetUrl.search = url.search;
+        return NextResponse.redirect(targetUrl, 308);
+      }
       if (isAdminPath || pathname.startsWith("/api/")) {
         return response;
       }
@@ -94,8 +120,8 @@ export async function middleware(request: NextRequest) {
     vendorSlug = hostParts[0];
   } else if (pathSegments[0] === "vendor") {
     vendorSlug = pathSegments[1] || null;
-  } else if (CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort]) {
-    vendorSlug = CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort];
+  } else if (VENDOR_DOMAIN_MAP[hostWithoutPort]) {
+    vendorSlug = VENDOR_DOMAIN_MAP[hostWithoutPort];
   }
 
   if (vendorSlug) {
