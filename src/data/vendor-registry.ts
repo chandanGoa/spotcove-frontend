@@ -104,6 +104,18 @@ export const VENDOR_REGISTRY: Record<
       description: "Fashion-focused layout with warm colors",
     },
   },
+
+  moonsoft: {
+    home: {
+      name: "Moonsoft Home Layout",
+      layoutJsonPath: "demo-layouts/minimal.json",
+      themeJsonPath: "demo-themes/minimal.json",
+      layoutJson: minimalLayout,
+      themeJson: minimalTheme,
+      packageTier: "free",
+      description: "Minimal fallback layout for Moonsoft",
+    },
+  },
 };
 
 export function getVendorLayoutConfig(

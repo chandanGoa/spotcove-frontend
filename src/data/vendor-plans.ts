@@ -17,6 +17,9 @@ export const VENDOR_PLANS: Record<string, VendorPlanRecord> = {
   procorp: {
     plan: "paid",
   },
+  moonsoft: {
+    plan: "paid",
+  },
 };
 
 export function getVendorPlan(

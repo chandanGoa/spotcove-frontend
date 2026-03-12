@@ -8,6 +8,7 @@ import {
   VendorLayoutRenderer,
   VendorThemeProvider,
 } from "@spotcove/render-runtime";
+import { getVendorLayoutConfig } from "@/data/vendor-registry";
 
 interface VendorKeywordClientProps {
   vendorSlug: string;
@@ -36,13 +37,17 @@ export default function VendorKeywordClient({
     let mounted = true;
 
     const loadVendorData = async () => {
+      const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(
+        /\/$/,
+        "",
+      );
+      const apiUrl = `${apiBase}/api/storefront/vendor/${vendorSlug}`;
+
       try {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/storefront/vendor/${vendorSlug}`,
-        );
+        const res = await fetch(apiUrl);
 
         console.log("Vendor API status:", res.status);
 
@@ -80,9 +85,26 @@ export default function VendorKeywordClient({
         );
 
         if (mounted) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load vendor data",
-          );
+          const fallbackConfig = getVendorLayoutConfig(vendorSlug, keyword);
+
+          if (fallbackConfig) {
+            console.warn(
+              "Vendor API fallback",
+              vendorSlug,
+              keyword,
+              "using local registry",
+            );
+            setVendorData({
+              layoutJSON: fallbackConfig.layoutJson,
+              themeJSON: fallbackConfig.themeJson,
+              products: [],
+              collections: [],
+            });
+          } else {
+            setError(
+              err instanceof Error ? err.message : "Failed to load vendor data",
+            );
+          }
         }
       } finally {
         if (mounted) {
@@ -96,7 +118,7 @@ export default function VendorKeywordClient({
     return () => {
       mounted = false;
     };
-  }, [vendorSlug]);
+  }, [keyword, vendorSlug]);
 
   const layoutJson = vendorData?.layoutJSON;
   const themeJson = vendorData?.themeJSON;
