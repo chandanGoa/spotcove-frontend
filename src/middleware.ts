@@ -2,11 +2,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getVendorPlan } from "@/data/vendor-plans";
 
+const CUSTOM_DOMAIN_VENDOR_MAP: Record<string, string> = {
+  "moonsoftlabs.com": "moonsoft",
+  "www.moonsoftlabs.com": "moonsoft",
+};
+
 export async function middleware(request: NextRequest) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const host = request.headers.get("host") || "";
-  const hostWithoutPort = host.split(":")[0];
+  const hostWithoutPort = host.split(":")[0].toLowerCase();
   const isIpAddress = /^\d+\.\d+\.\d+\.\d+$/.test(hostWithoutPort);
 
   let response = NextResponse.next({
@@ -20,6 +25,27 @@ export async function middleware(request: NextRequest) {
   const isLocalhostDomain = hostWithoutPort.includes("localhost");
   const isVercelDomain = hostWithoutPort.endsWith(".vercel.app");
   const minParts = isLocalhostDomain ? 2 : 3;
+
+  const mappedVendorSlug = CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort];
+  if (mappedVendorSlug && !pathname.startsWith("/api/")) {
+    const vendorPlan = getVendorPlan(mappedVendorSlug);
+
+    if (!vendorPlan || vendorPlan.plan !== "paid") {
+      const upgradeUrl = new URL("/upgrade-required", request.url);
+      upgradeUrl.search = url.search;
+      return NextResponse.rewrite(upgradeUrl);
+    }
+
+    const rewritePath = `/vendor/${mappedVendorSlug}${pathname}`;
+    const rewriteUrl = new URL(rewritePath, request.url);
+    rewriteUrl.search = url.search;
+
+    const rewriteResponse = NextResponse.rewrite(rewriteUrl);
+    rewriteResponse.cookies.set("vendor_slug", mappedVendorSlug);
+    rewriteResponse.cookies.set("is_demo", "false");
+
+    return rewriteResponse;
+  }
 
   if (!isVercelDomain && !isIpAddress && hostParts.length >= minParts) {
     const subdomain = hostParts[0];
@@ -57,13 +83,15 @@ export async function middleware(request: NextRequest) {
 
   const pathSegments = pathname.split("/").filter(Boolean);
 
-  if (host.startsWith("demo.")) {
+  if (hostWithoutPort.startsWith("demo.")) {
     isDemo = true;
     vendorSlug = null;
   } else if (!isVercelDomain && hostParts.length > 2) {
     vendorSlug = hostParts[0];
   } else if (pathSegments[0] === "vendor") {
     vendorSlug = pathSegments[1] || null;
+  } else if (CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort]) {
+    vendorSlug = CUSTOM_DOMAIN_VENDOR_MAP[hostWithoutPort];
   }
 
   if (vendorSlug) {
