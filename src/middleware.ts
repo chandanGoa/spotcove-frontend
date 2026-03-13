@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const rewritePath = `/vendor/${mappedVendorSlug}${pathname}`;
-    const rewriteUrl = new URL(rewritePath, "https://spotcove.com");
+    const rewriteUrl = new URL(rewritePath, request.url);
     rewriteUrl.search = url.search;
 
     const rewriteResponse = NextResponse.rewrite(rewriteUrl);
