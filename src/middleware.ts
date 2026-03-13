@@ -43,11 +43,15 @@ export async function middleware(request: NextRequest) {
       return NextResponse.rewrite(upgradeUrl);
     }
 
-    const redirectPath = `/vendor/${mappedVendorSlug}${pathname}`;
-    const redirectUrl = new URL(redirectPath, "https://spotcove.com");
-    redirectUrl.search = url.search;
+    const rewritePath = `/vendor/${mappedVendorSlug}${pathname}`;
+    const rewriteUrl = new URL(rewritePath, request.url);
+    rewriteUrl.search = url.search;
 
-    return NextResponse.redirect(redirectUrl);
+    const rewriteResponse = NextResponse.rewrite(rewriteUrl);
+    rewriteResponse.cookies.set("vendor_slug", mappedVendorSlug);
+    rewriteResponse.cookies.set("is_demo", "false");
+
+    return rewriteResponse;
   }
 
   if (!isVercelDomain && !isIpAddress && hostParts.length >= minParts) {

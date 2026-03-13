@@ -18,6 +18,15 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  async rewrites() {
+    return [
+      {
+        source: '/vendor/:slug/:path*',
+        destination: 'https://spotcove.com/vendor/:slug/:path*',
+      },
+    ]
+  },
 };
 
 export default nextConfig;
