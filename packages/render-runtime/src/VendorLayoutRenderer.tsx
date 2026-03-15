@@ -114,11 +114,31 @@ function FooterComponent({
 interface VendorLayoutRendererProps {
   children?: React.ReactNode;
   componentData?: Record<string, any>;
+  componentContent?: Record<string, any>;
+}
+
+function getContentByComponentType(
+  componentType: string,
+  componentContent: Record<string, any>,
+) {
+  switch (componentType) {
+    case "hero":
+      return componentContent.hero;
+    case "feature-grid":
+      return componentContent.features;
+    case "cta":
+    case "vendor-cta":
+    case "promoter-cta":
+      return componentContent.cta;
+    default:
+      return undefined;
+  }
 }
 
 export default function VendorLayoutRenderer({
   children,
   componentData = {},
+  componentContent = {},
 }: VendorLayoutRendererProps) {
   const { currentLayout, currentThemeSettings, vendorSlug } = useVendorTheme();
 
@@ -169,9 +189,14 @@ export default function VendorLayoutRenderer({
                       : "rich-text";
 
                   const Component = componentMappers[validatedType];
+                  const componentTypeContent = getContentByComponentType(
+                    validatedType,
+                    componentContent,
+                  );
 
                   // Inject component data if available
                   const componentSettings = {
+                    ...(componentTypeContent || {}),
                     ...component.settings,
                     ...(componentData[componentId] || {}),
                   };
@@ -184,6 +209,7 @@ export default function VendorLayoutRenderer({
                       className={component.className}
                       style={component.style}
                       type={validatedType}
+                      componentContent={componentTypeContent}
                       {...(componentData[componentId] || {})}
                     />
                   );
@@ -197,14 +223,18 @@ export default function VendorLayoutRenderer({
       // New format: nested elements structure
       return (
         <div className="min-h-screen">
-          {renderLayoutElements(currentLayout.elements, componentData)}
+          {renderLayoutElements(
+            currentLayout.elements,
+            componentData,
+            componentContent,
+          )}
         </div>
       );
     } else {
       // Fallback to default layout
       return <DefaultLayout>{children}</DefaultLayout>;
     }
-  }, [currentLayout, children, componentData]);
+  }, [currentLayout, children, componentData, componentContent]);
 
   return renderedLayout;
 }
@@ -213,6 +243,7 @@ export default function VendorLayoutRenderer({
 function renderLayoutElements(
   elements: any[],
   componentData: Record<string, any> = {},
+  componentContent: Record<string, any> = {},
 ) {
   if (!Array.isArray(elements)) {
     return null;
@@ -304,9 +335,14 @@ function renderLayoutElements(
               : "rich-text";
 
           const Component = componentMappers[validatedType];
+          const componentTypeContent = getContentByComponentType(
+            validatedType,
+            componentContent,
+          );
 
           // Inject component data if available
           const componentSettings = {
+            ...(componentTypeContent || {}),
             ...component.settings,
             ...(componentData[componentId] || {}),
           };
@@ -319,6 +355,7 @@ function renderLayoutElements(
               className={component.className}
               style={component.style}
               type={validatedType}
+              componentContent={componentTypeContent}
               {...(componentData[componentId] || {})}
             />
           );
@@ -326,7 +363,7 @@ function renderLayoutElements(
 
         {/* Render child elements recursively */}
         {childElements.length > 0 &&
-          renderLayoutElements(childElements, componentData)}
+          renderLayoutElements(childElements, componentData, componentContent)}
       </div>
     );
   });
