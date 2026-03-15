@@ -24,9 +24,19 @@ export interface HeroSectionSettings {
     | "hero-centered"
     | "hero-split";
 }
-export interface HeroSectionProps extends React.ComponentProps<"div"> {
+
+export interface HeroSectionContent {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+export interface HeroSectionProps
+  extends Omit<React.ComponentProps<"div">, "content"> {
   settings?: HeroSectionSettings;
   themeOverride?: Record<string, string>;
+  content?: HeroSectionContent;
 }
 
 const toCssValue = (value?: string | number) =>
@@ -87,7 +97,15 @@ function resolveGapClass(
 }
 
 export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
-  const { className, style, children, settings, themeOverride, ...rest } =
+  const {
+    className,
+    style,
+    children,
+    settings,
+    themeOverride,
+    content,
+    ...rest
+  } =
     props;
   const {
     title = "Welcome to Our Store",
@@ -102,6 +120,10 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     containerPadding,
     subtype,
   } = settings || {};
+  const resolvedTitle = content?.title ?? title;
+  const resolvedSubtitle = content?.subtitle ?? subtitle;
+  const resolvedPrimaryCtaText = content?.ctaText ?? buttonText;
+  const resolvedPrimaryCtaLink = content?.ctaLink;
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
   const resolvedMaxWidth = toCssValue(maxWidth);
   const resolvedAlign = align === "left" ? "left" : "center";
@@ -133,7 +155,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           lineHeight: "1.1",
         }}
       >
-        {title}
+        {resolvedTitle}
       </h1>
       <p
         className="text-lg text-slate-300"
@@ -142,7 +164,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           lineHeight: "1.6",
         }}
       >
-        {subtitle}
+        {resolvedSubtitle}
       </p>
       <div
         className={cn("flex flex-col gap-3 sm:flex-row", {
@@ -150,12 +172,22 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           "justify-center": resolvedAlign === "center",
         })}
       >
-        <Button
-          size="lg"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
-        >
-          {buttonText}
-        </Button>
+        {resolvedPrimaryCtaLink ? (
+          <Button
+            asChild
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
+          >
+            <a href={resolvedPrimaryCtaLink}>{resolvedPrimaryCtaText}</a>
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
+          >
+            {resolvedPrimaryCtaText}
+          </Button>
+        )}
         {secondaryButtonText ? (
           <Button
             size="lg"
