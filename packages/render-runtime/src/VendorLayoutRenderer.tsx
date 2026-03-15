@@ -209,7 +209,7 @@ export default function VendorLayoutRenderer({
                       className={component.className}
                       style={component.style}
                       type={validatedType}
-                      componentContent={componentTypeContent}
+                      content={componentTypeContent}
                       {...(componentData[componentId] || {})}
                     />
                   );
@@ -355,7 +355,7 @@ function renderLayoutElements(
               className={component.className}
               style={component.style}
               type={validatedType}
-              componentContent={componentTypeContent}
+              content={componentTypeContent}
               {...(componentData[componentId] || {})}
             />
           );
