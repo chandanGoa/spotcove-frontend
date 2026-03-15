@@ -18,6 +18,7 @@ interface VendorKeywordClientProps {
 interface VendorPublicPayload {
   layoutJSON?: any;
   themeJSON?: any;
+  contentJSON?: Record<string, any>;
   products?: any[];
   collections?: any[];
   error?: string;
@@ -65,11 +66,13 @@ export default function VendorKeywordClient({
 
         const responseLayout = data.layoutJSON;
         const responseTheme = data.themeJSON;
+        const responseContent = data.contentJSON;
         const responseProducts = data.products ?? [];
 
         console.log("Vendor payload checks:", {
           hasLayoutJSON: Boolean(responseLayout),
           hasThemeJSON: Boolean(responseTheme),
+          hasContentJSON: Boolean(responseContent),
           productsCount: Array.isArray(responseProducts)
             ? responseProducts.length
             : 0,
@@ -97,6 +100,7 @@ export default function VendorKeywordClient({
             setVendorData({
               layoutJSON: fallbackConfig.layoutJson,
               themeJSON: fallbackConfig.themeJson,
+              contentJSON: {},
               products: [],
               collections: [],
             });
@@ -122,6 +126,7 @@ export default function VendorKeywordClient({
 
   const layoutJson = vendorData?.layoutJSON;
   const themeJson = vendorData?.themeJSON;
+  const contentJSON = vendorData?.contentJSON ?? {};
   const products = vendorData?.products ?? [];
   const collections = vendorData?.collections ?? [];
 
@@ -190,7 +195,10 @@ export default function VendorKeywordClient({
         layout={layoutJson}
         vendorSlug={vendorSlug}
       >
-        <VendorLayoutRenderer componentData={componentData} />
+        <VendorLayoutRenderer
+          componentData={componentData}
+          componentContent={contentJSON}
+        />
       </VendorThemeProvider>
     </div>
   );
