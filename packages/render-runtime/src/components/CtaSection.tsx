@@ -89,15 +89,11 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
       }}
     >
       <div
-        className={cn(
-          "max-w-6xl mx-auto px-6 rounded-2xl p-10",
-          variantClass,
-          {
-            "text-left": align === "left",
-            "text-center": align === "center",
-            "text-right": align === "right",
-          },
-        )}
+        className={cn("max-w-6xl mx-auto px-6 rounded-2xl p-10", variantClass, {
+          "text-left": align === "left",
+          "text-center": align === "center",
+          "text-right": align === "right",
+        })}
       >
         <h2
           className="text-4xl font-bold tracking-tight text-white"

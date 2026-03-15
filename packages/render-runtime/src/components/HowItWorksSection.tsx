@@ -80,9 +80,7 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
         ...style,
       }}
     >
-      <div
-        className="max-w-6xl mx-auto px-6"
-      >
+      <div className="max-w-6xl mx-auto px-6">
         <div
           className={cn({
             "text-left": align === "left",

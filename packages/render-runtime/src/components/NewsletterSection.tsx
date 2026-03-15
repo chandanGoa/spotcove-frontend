@@ -99,7 +99,7 @@ const NewsletterSectionComponent = ({
             onChange={(e) => setEmail(e.target.value)}
             required
             className="flex-1 border-input"
-            style={{ backgroundColor: 'hsl(var(--background))' }}
+            style={{ backgroundColor: "hsl(var(--background))" }}
           />
           <Button
             type="submit"

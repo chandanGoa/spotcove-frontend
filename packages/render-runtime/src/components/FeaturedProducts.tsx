@@ -1,6 +1,6 @@
 /**
  * FeaturedProducts - Presentation Component (Tier 2 Refactored)
- * 
+ *
  * NO data fetching - accepts all data via props
  * NO useEffect, NO Supabase, NO API calls
  * Pure presentation logic only
@@ -191,7 +191,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                         color: "hsl(var(--primary))",
                       }}
                     >
-                      ${typeof product.price === "number" ? product.price.toFixed(2) : product.price}
+                      $
+                      {typeof product.price === "number"
+                        ? product.price.toFixed(2)
+                        : product.price}
                     </span>
                   </div>
                 </CardContent>

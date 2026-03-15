@@ -57,7 +57,11 @@ export const CollectionsGrid: React.FC<CollectionsGridProps> = ({
 
   return (
     <section
-      className={cn("py-20 md:py-24 bg-slate-50", settings.className, className)}
+      className={cn(
+        "py-20 md:py-24 bg-slate-50",
+        settings.className,
+        className,
+      )}
       style={{ ...themeOverrideStyles, ...style }}
     >
       <div className="max-w-6xl mx-auto px-6">
