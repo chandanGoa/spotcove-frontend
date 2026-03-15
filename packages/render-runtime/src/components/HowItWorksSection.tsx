@@ -71,16 +71,25 @@ export const HowItWorksSection: React.FC<HowItWorksProps> = ({
   return (
     <section
       className={cn(
-        "py-20 md:py-24 w-full bg-white text-[#0F172A]",
+        "w-full bg-white text-[#0F172A] !py-24",
         settings.className,
         className,
       )}
       style={{
         ...themeOverrideStyles,
         ...style,
+        paddingTop: resolvedPadding,
+        paddingBottom: resolvedPadding,
       }}
     >
-      <div className="max-w-6xl mx-auto px-6">
+      <div
+        className="mx-auto w-full !max-w-7xl px-6"
+        style={{
+          maxWidth: resolvedMaxWidth ?? "72rem",
+          paddingLeft: resolvedContainerPadding,
+          paddingRight: resolvedContainerPadding,
+        }}
+      >
         <div
           className={cn({
             "text-left": align === "left",

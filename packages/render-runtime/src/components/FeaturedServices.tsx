@@ -99,18 +99,27 @@ export const FeaturedServices: React.FC<FeaturedServicesProps> = ({
 
   return (
     <section
-      className={cn("py-20 md:py-24 bg-white", settings.className, className)}
+      className={cn("!py-24 bg-white", settings.className, className)}
       style={{
         ...themeOverrideStyles,
         ...style,
+        paddingTop: resolvedPadding,
+        paddingBottom: resolvedPadding,
       }}
     >
       <div
-        className={cn("max-w-6xl mx-auto px-6", {
+        className={cn("mx-auto w-full !max-w-7xl px-6", {
           "text-left": align === "left",
           "text-center": align === "center",
           "text-right": align === "right",
         })}
+        style={{
+          maxWidth: resolvedMaxWidth ?? "72rem",
+          marginLeft: "auto",
+          marginRight: "auto",
+          paddingLeft: resolvedContainerPadding,
+          paddingRight: resolvedContainerPadding,
+        }}
       >
         <h2
           className="text-3xl font-bold tracking-tight text-[#0F172A]"

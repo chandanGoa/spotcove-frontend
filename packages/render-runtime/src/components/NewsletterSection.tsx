@@ -68,15 +68,22 @@ const NewsletterSectionComponent = ({
 
   return (
     <section
-      className={cn("py-20 md:py-24 bg-muted", settings.className, className)}
+      className={cn("bg-muted", settings.className, className)}
       style={{
         ...themeOverrideStyles,
         ...style,
+        paddingTop: toCssValue(paddingY ?? 64),
+        paddingBottom: toCssValue(paddingY ?? 64),
+        maxWidth: maxWidth ? toCssValue(maxWidth) : undefined,
+        marginLeft: "auto",
+        marginRight: "auto",
+        paddingLeft: toCssValue(containerPadding ?? 16),
+        paddingRight: toCssValue(containerPadding ?? 16),
       }}
       {...props}
     >
       <div
-        className={cn("max-w-6xl mx-auto px-6", {
+        className={cn({
           "text-left": align === "left",
           "text-center": align === "center",
           "text-right": align === "right",
@@ -99,7 +106,7 @@ const NewsletterSectionComponent = ({
             onChange={(e) => setEmail(e.target.value)}
             required
             className="flex-1 border-input"
-            style={{ backgroundColor: "hsl(var(--background))" }}
+            style={{ backgroundColor: 'hsl(var(--background))' }}
           />
           <Button
             type="submit"

@@ -78,7 +78,7 @@ export const MainFooter: React.FC<MainFooterProps> = ({
       )}
       style={{ ...themeOverrideStyles, ...style }}
     >
-      <div className="max-w-6xl mx-auto px-6 py-20 md:py-24">
+      <div className="container py-12">
         <div className="grid gap-8 md:grid-cols-3 mb-10">
           {links.map((section, index) => (
             <div key={index}>
