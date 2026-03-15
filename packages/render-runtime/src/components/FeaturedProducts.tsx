@@ -1,6 +1,6 @@
 /**
  * FeaturedProducts - Presentation Component (Tier 2 Refactored)
- * 
+ *
  * NO data fetching - accepts all data via props
  * NO useEffect, NO Supabase, NO API calls
  * Pure presentation logic only
@@ -93,21 +93,11 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
   return (
     <section
-      className={cn(settings.className, className)}
-      style={{
-        ...themeOverrideStyles,
-        ...style,
-        paddingTop: toCssValue(paddingY ?? 48),
-        paddingBottom: toCssValue(paddingY ?? 48),
-        maxWidth: maxWidth ? toCssValue(maxWidth) : undefined,
-        marginLeft: "auto",
-        marginRight: "auto",
-        paddingLeft: toCssValue(containerPadding ?? 16),
-        paddingRight: toCssValue(containerPadding ?? 16),
-      }}
+      className={cn("py-20 md:py-24", settings.className, className)}
+      style={{ ...themeOverrideStyles, ...style }}
     >
       <div
-        className={cn({
+        className={cn("max-w-6xl mx-auto px-6", {
           "text-left": align === "left",
           "text-center": align === "center",
           "text-right": align === "right",
@@ -201,7 +191,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                         color: "hsl(var(--primary))",
                       }}
                     >
-                      ${typeof product.price === "number" ? product.price.toFixed(2) : product.price}
+                      $
+                      {typeof product.price === "number"
+                        ? product.price.toFixed(2)
+                        : product.price}
                     </span>
                   </div>
                 </CardContent>

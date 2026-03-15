@@ -1,6 +1,6 @@
 /**
  * ProductsSection - Presentation Component (Tier 2 Refactored)
- * 
+ *
  * NO data fetching - accepts all data via props
  * NO useEffect, NO Supabase, NO API calls
  * Pure presentation logic only
@@ -114,129 +114,186 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
 
   return (
     <section
-      className={cn(settings.className, className)}
-      style={{
-        ...themeOverrideStyles,
-        ...style,
-        maxWidth: maxWidth ? toCssValue(maxWidth) : undefined,
-        marginLeft: "auto",
-        marginRight: "auto",
-        paddingTop: toCssValue(paddingY ?? 32),
-        paddingBottom: toCssValue(paddingY ?? 32),
-        paddingLeft: toCssValue(containerPadding ?? 0),
-        paddingRight: toCssValue(containerPadding ?? 0),
-      }}
+      className={cn("py-20 md:py-24", settings.className, className)}
+      style={{ ...themeOverrideStyles, ...style }}
     >
-      <h2
-        className={cn("font-bold", {
-          "text-left": align === "left",
-          "text-center": align === "center",
-          "text-right": align === "right",
-        })}
-        style={{
-          fontSize: "var(--text-2xl, 1.5rem)",
-          fontFamily: "var(--font-heading, inherit)",
-          marginBottom: "var(--spacing-md, 1rem)",
-        }}
-      >
-        {title}
-      </h2>
-
-      {isFeatured && (
-        <div
-          className={`grid ${gridCols}`}
-          style={{ gap: toCssValue(gap ?? "var(--spacing-lg, 1.5rem)") }}
+      <div className="max-w-6xl mx-auto px-6">
+        <h2
+          className={cn("font-bold", {
+            "text-left": align === "left",
+            "text-center": align === "center",
+            "text-right": align === "right",
+          })}
+          style={{
+            fontSize: "var(--text-2xl, 1.5rem)",
+            fontFamily: "var(--font-heading, inherit)",
+            marginBottom: "var(--spacing-md, 1rem)",
+          }}
         >
-          {products.map((product) => (
-            <Card
-              key={product.id}
-              className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => handleProductClick(product)}
-              style={{
-                background: "var(--cards-background, hsl(var(--card)))",
-                borderRadius:
-                  "var(--cards-border-radius, var(--radius-lg, 0.5rem))",
-                border: "var(--cards-border, 1px solid hsl(var(--border)))",
-                boxShadow:
-                  "var(--cards-box-shadow, 0 1px 3px rgba(0, 0, 0, 0.1))",
-              }}
-            >
-              <CardContent className="p-0">
-                {product.image && (
-                  <div className="aspect-video relative">
-                    <img
-                      src={product.image.src}
-                      alt={product.image.alt || product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div style={{ padding: "var(--cards-padding, 1.5rem)" }}>
-                  <h3
-                    className="font-semibold"
-                    style={{
-                      fontSize: "var(--text-xl, 1.25rem)",
-                      fontFamily: "var(--font-heading, inherit)",
-                      marginBottom: "var(--spacing-sm, 0.5rem)",
-                    }}
-                  >
-                    {product.name}
-                  </h3>
-                  {showDescription && product.description && (
-                    <p
-                      className="text-muted-foreground"
+          {title}
+        </h2>
+
+        {isFeatured && (
+          <div
+            className={`grid ${gridCols}`}
+            style={{ gap: toCssValue(gap ?? "var(--spacing-lg, 1.5rem)") }}
+          >
+            {products.map((product) => (
+              <Card
+                key={product.id}
+                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => handleProductClick(product)}
+                style={{
+                  background: "var(--cards-background, hsl(var(--card)))",
+                  borderRadius:
+                    "var(--cards-border-radius, var(--radius-lg, 0.5rem))",
+                  border: "var(--cards-border, 1px solid hsl(var(--border)))",
+                  boxShadow:
+                    "var(--cards-box-shadow, 0 1px 3px rgba(0, 0, 0, 0.1))",
+                }}
+              >
+                <CardContent className="p-0">
+                  {product.image && (
+                    <div className="aspect-video relative">
+                      <img
+                        src={product.image.src}
+                        alt={product.image.alt || product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div style={{ padding: "var(--cards-padding, 1.5rem)" }}>
+                    <h3
+                      className="font-semibold"
                       style={{
-                        fontSize: "var(--text-base, 1rem)",
-                        fontFamily: "var(--font-body, inherit)",
-                        marginBottom: "var(--spacing-md, 1rem)",
+                        fontSize: "var(--text-xl, 1.25rem)",
+                        fontFamily: "var(--font-heading, inherit)",
+                        marginBottom: "var(--spacing-sm, 0.5rem)",
                       }}
                     >
-                      {product.description}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between mb-4">
-                    <span
-                      className="font-bold"
-                      style={{ fontSize: "var(--text-xl, 1.25rem)" }}
-                    >
-                      ${product.price}
-                    </span>
-                    {showRating && product.rating && (
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span style={{ fontSize: "var(--text-sm, 0.875rem)" }}>
-                          {product.rating}
-                        </span>
-                      </div>
+                      {product.name}
+                    </h3>
+                    {showDescription && product.description && (
+                      <p
+                        className="text-muted-foreground"
+                        style={{
+                          fontSize: "var(--text-base, 1rem)",
+                          fontFamily: "var(--font-body, inherit)",
+                          marginBottom: "var(--spacing-md, 1rem)",
+                        }}
+                      >
+                        {product.description}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mb-4">
+                      <span
+                        className="font-bold"
+                        style={{ fontSize: "var(--text-xl, 1.25rem)" }}
+                      >
+                        ${product.price}
+                      </span>
+                      {showRating && product.rating && (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span
+                            style={{ fontSize: "var(--text-sm, 0.875rem)" }}
+                          >
+                            {product.rating}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {showBadge && product.badge && (
+                      <Badge variant="secondary" className="mb-4">
+                        {product.badge}
+                      </Badge>
                     )}
                   </div>
-                  {showBadge && product.badge && (
-                    <Badge variant="secondary" className="mb-4">
-                      {product.badge}
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter
-                className="pt-0"
-                style={{ padding: "var(--cards-padding, 1.5rem)" }}
-              >
-                <Button className="w-full">View Details</Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      )}
+                </CardContent>
+                <CardFooter
+                  className="pt-0"
+                  style={{ padding: "var(--cards-padding, 1.5rem)" }}
+                >
+                  <Button className="w-full">View Details</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
 
-      {isCarousel && (
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 w-64 snap-center cursor-pointer"
-              onClick={() => handleProductClick(product)}
-            >
-              <Card className="overflow-hidden h-full">
+        {isCarousel && (
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="flex-shrink-0 w-64 snap-center cursor-pointer"
+                onClick={() => handleProductClick(product)}
+              >
+                <Card className="overflow-hidden h-full">
+                  <CardContent className="p-0">
+                    {product.image && (
+                      <div className="aspect-square relative">
+                        <img
+                          src={product.image.src}
+                          alt={product.image.alt || product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div style={{ padding: "var(--cards-padding, 1rem)" }}>
+                      <h3
+                        className="font-semibold line-clamp-2"
+                        style={{
+                          fontSize: "var(--text-lg, 1.125rem)",
+                          fontFamily: "var(--font-heading, inherit)",
+                          marginBottom: "var(--spacing-xs, 0.25rem)",
+                        }}
+                      >
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="font-bold"
+                          style={{ fontSize: "var(--text-lg, 1.125rem)" }}
+                        >
+                          ${product.price}
+                        </span>
+                        {showRating && product.rating && (
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span
+                              style={{ fontSize: "var(--text-xs, 0.75rem)" }}
+                            >
+                              {product.rating}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter
+                    className="pt-0"
+                    style={{ padding: "var(--cards-padding, 1rem)" }}
+                  >
+                    <Button className="w-full text-sm">View</Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isGrid && (
+          <div
+            className={`grid ${gridCols}`}
+            style={{ gap: toCssValue(gap ?? "var(--spacing-lg, 1.5rem)") }}
+          >
+            {products.map((product) => (
+              <Card
+                key={product.id}
+                className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => handleProductClick(product)}
+              >
                 <CardContent className="p-0">
                   {product.image && (
                     <div className="aspect-square relative">
@@ -249,7 +306,7 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
                   )}
                   <div style={{ padding: "var(--cards-padding, 1rem)" }}>
                     <h3
-                      className="font-semibold line-clamp-2"
+                      className="font-semibold"
                       style={{
                         fontSize: "var(--text-lg, 1.125rem)",
                         fontFamily: "var(--font-heading, inherit)",
@@ -258,6 +315,18 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
                     >
                       {product.name}
                     </h3>
+                    {showDescription && product.description && (
+                      <p
+                        className="text-muted-foreground line-clamp-2"
+                        style={{
+                          fontSize: "var(--text-sm, 0.875rem)",
+                          fontFamily: "var(--font-body, inherit)",
+                          marginBottom: "var(--spacing-sm, 0.5rem)",
+                        }}
+                      >
+                        {product.description}
+                      </p>
+                    )}
                     <div className="flex items-center justify-between">
                       <span
                         className="font-bold"
@@ -268,106 +337,35 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
                       {showRating && product.rating && (
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span style={{ fontSize: "var(--text-xs, 0.75rem)" }}>
+                          <span
+                            style={{ fontSize: "var(--text-sm, 0.875rem)" }}
+                          >
                             {product.rating}
                           </span>
                         </div>
                       )}
                     </div>
+                    {showBadge && product.badge && (
+                      <Badge
+                        variant="secondary"
+                        style={{ marginTop: "var(--spacing-sm, 0.5rem)" }}
+                      >
+                        {product.badge}
+                      </Badge>
+                    )}
                   </div>
                 </CardContent>
                 <CardFooter
                   className="pt-0"
                   style={{ padding: "var(--cards-padding, 1rem)" }}
                 >
-                  <Button className="w-full text-sm">View</Button>
+                  <Button className="w-full">View Product</Button>
                 </CardFooter>
               </Card>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {isGrid && (
-        <div
-          className={`grid ${gridCols}`}
-          style={{ gap: toCssValue(gap ?? "var(--spacing-lg, 1.5rem)") }}
-        >
-          {products.map((product) => (
-            <Card
-              key={product.id}
-              className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => handleProductClick(product)}
-            >
-              <CardContent className="p-0">
-                {product.image && (
-                  <div className="aspect-square relative">
-                    <img
-                      src={product.image.src}
-                      alt={product.image.alt || product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div style={{ padding: "var(--cards-padding, 1rem)" }}>
-                  <h3
-                    className="font-semibold"
-                    style={{
-                      fontSize: "var(--text-lg, 1.125rem)",
-                      fontFamily: "var(--font-heading, inherit)",
-                      marginBottom: "var(--spacing-xs, 0.25rem)",
-                    }}
-                  >
-                    {product.name}
-                  </h3>
-                  {showDescription && product.description && (
-                    <p
-                      className="text-muted-foreground line-clamp-2"
-                      style={{
-                        fontSize: "var(--text-sm, 0.875rem)",
-                        fontFamily: "var(--font-body, inherit)",
-                        marginBottom: "var(--spacing-sm, 0.5rem)",
-                      }}
-                    >
-                      {product.description}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="font-bold"
-                      style={{ fontSize: "var(--text-lg, 1.125rem)" }}
-                    >
-                      ${product.price}
-                    </span>
-                    {showRating && product.rating && (
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span style={{ fontSize: "var(--text-sm, 0.875rem)" }}>
-                          {product.rating}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {showBadge && product.badge && (
-                    <Badge
-                      variant="secondary"
-                      style={{ marginTop: "var(--spacing-sm, 0.5rem)" }}
-                    >
-                      {product.badge}
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter
-                className="pt-0"
-                style={{ padding: "var(--cards-padding, 1rem)" }}
-              >
-                <Button className="w-full">View Product</Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 };
