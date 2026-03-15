@@ -124,22 +124,9 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   const resolvedPrimaryCtaText = content?.ctaText ?? buttonText;
   const resolvedPrimaryCtaLink = content?.ctaLink;
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
-  const resolvedMaxWidth = toCssValue(maxWidth);
   const resolvedAlign = align === "left" ? "left" : "center";
-  const resolvedPaddingClass = resolvePaddingClass(paddingY);
   const resolvedGapClass = resolveGapClass(contentGap);
   const resolvedSubtype = subtype === "dark" ? "dark" : "light";
-  const resolvedContainerPadding =
-    typeof containerPadding === "string" && containerPadding.trim().length > 0
-      ? containerPadding
-      : "px-6";
-  const resolvedContainerPaddingStyle =
-    typeof containerPadding === "number"
-      ? {
-          paddingLeft: `${containerPadding}px`,
-          paddingRight: `${containerPadding}px`,
-        }
-      : undefined;
   const sectionStyle: React.CSSProperties = {
     ...themeOverrideStyles,
     ...style,
@@ -209,9 +196,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   return (
     <section
       className={cn(
-        "relative overflow-hidden",
-        resolvedPaddingClass,
-        "py-32",
+        "py-20 md:py-24 relative overflow-hidden",
         subtypeMap[resolvedSubtype],
         className,
       )}
@@ -220,15 +205,10 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     >
       <div
         className={cn(
-          "max-w-7xl mx-auto flex flex-col",
+          "max-w-6xl mx-auto px-6 flex flex-col",
           alignMap[resolvedAlign],
           resolvedGapClass,
-          resolvedContainerPadding,
         )}
-        style={{
-          maxWidth: resolvedMaxWidth,
-          ...resolvedContainerPaddingStyle,
-        }}
       >
         {textElement}
         {imageElement}

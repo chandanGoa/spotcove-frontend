@@ -93,21 +93,11 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
   return (
     <section
-      className={cn(settings.className, className)}
-      style={{
-        ...themeOverrideStyles,
-        ...style,
-        paddingTop: toCssValue(paddingY ?? 48),
-        paddingBottom: toCssValue(paddingY ?? 48),
-        maxWidth: maxWidth ? toCssValue(maxWidth) : undefined,
-        marginLeft: "auto",
-        marginRight: "auto",
-        paddingLeft: toCssValue(containerPadding ?? 16),
-        paddingRight: toCssValue(containerPadding ?? 16),
-      }}
+      className={cn("py-20 md:py-24", settings.className, className)}
+      style={{ ...themeOverrideStyles, ...style }}
     >
       <div
-        className={cn({
+        className={cn("max-w-6xl mx-auto px-6", {
           "text-left": align === "left",
           "text-center": align === "center",
           "text-right": align === "right",

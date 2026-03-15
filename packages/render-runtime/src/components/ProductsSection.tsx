@@ -114,19 +114,10 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
 
   return (
     <section
-      className={cn(settings.className, className)}
-      style={{
-        ...themeOverrideStyles,
-        ...style,
-        maxWidth: maxWidth ? toCssValue(maxWidth) : undefined,
-        marginLeft: "auto",
-        marginRight: "auto",
-        paddingTop: toCssValue(paddingY ?? 32),
-        paddingBottom: toCssValue(paddingY ?? 32),
-        paddingLeft: toCssValue(containerPadding ?? 0),
-        paddingRight: toCssValue(containerPadding ?? 0),
-      }}
+      className={cn("py-20 md:py-24", settings.className, className)}
+      style={{ ...themeOverrideStyles, ...style }}
     >
+      <div className="max-w-6xl mx-auto px-6">
       <h2
         className={cn("font-bold", {
           "text-left": align === "left",
@@ -368,6 +359,7 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
           ))}
         </div>
       )}
+      </div>
     </section>
   );
 };

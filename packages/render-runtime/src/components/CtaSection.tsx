@@ -82,17 +82,15 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
 
   return (
     <section
-      className={cn("!py-24", settings.className, className)}
+      className={cn("py-20 md:py-24", settings.className, className)}
       style={{
         ...themeOverrideStyles,
         ...style,
-        paddingTop: resolvedPadding,
-        paddingBottom: resolvedPadding,
       }}
     >
       <div
         className={cn(
-          "mx-auto w-full !max-w-7xl px-6 rounded-2xl p-10 text-center",
+          "max-w-6xl mx-auto px-6 rounded-2xl p-10",
           variantClass,
           {
             "text-left": align === "left",
@@ -100,11 +98,6 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
             "text-right": align === "right",
           },
         )}
-        style={{
-          maxWidth: resolvedMaxWidth ?? "72rem",
-          paddingLeft: resolvedContainerPadding,
-          paddingRight: resolvedContainerPadding,
-        }}
       >
         <h2
           className="text-4xl font-bold tracking-tight text-white"
