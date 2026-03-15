@@ -105,8 +105,7 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     themeOverride,
     content,
     ...rest
-  } =
-    props;
+  } = props;
   const {
     title = "Welcome to Our Store",
     subtitle = "Discover amazing products and great deals",
