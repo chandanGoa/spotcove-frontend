@@ -71,17 +71,18 @@ export default function VendorThemeProvider({
   layout = null,
   vendorSlug = "runtime",
 }: VendorThemeProviderProps) {
-  const [currentThemeSettings] = useState<ThemeSettings>(themeSettings);
+  // Use the prop directly so CSS vars always reflect the latest theme,
+  // not just the initial value frozen by useState.
+  const currentThemeSettings = themeSettings;
   const [currentLayout] = useState<LayoutStructure | null>(layout);
 
-  // Apply theme to CSS variables when theme changes
+  // Apply theme CSS variables and load fonts whenever theme changes
   useEffect(() => {
     const root = document.documentElement;
 
     if (currentThemeSettings?.colors) {
       Object.entries(currentThemeSettings.colors).forEach(([key, value]) => {
         if (value && typeof value === "string") {
-          // Convert hex to HSL if needed
           const hslValue = value.startsWith("#")
             ? hexToHSL(value as string)
             : value;
@@ -95,7 +96,6 @@ export default function VendorThemeProvider({
       "--space-container": "1.25rem",
       "--space-gap": "1.5rem",
     };
-
     Object.entries(spacingTokens).forEach(([token, fallback]) => {
       if (!root.style.getPropertyValue(token)) {
         root.style.setProperty(token, fallback);
@@ -103,11 +103,36 @@ export default function VendorThemeProvider({
     });
 
     if (currentThemeSettings?.fonts) {
-      Object.entries(currentThemeSettings.fonts).forEach(([key, value]) => {
-        if (value && typeof value === "string") {
-          root.style.setProperty(`--font-${key}`, value);
+      const { heading, body, fontUrls, fontFaces } = currentThemeSettings.fonts as any;
+
+      if (heading) root.style.setProperty("--font-heading", heading);
+      if (body) root.style.setProperty("--font-body", body);
+
+      // Inject @font-face declarations (highest priority)
+      if (Array.isArray(fontFaces) && fontFaces.length > 0) {
+        const id = `vendor-font-faces-${vendorSlug}`;
+        let el = document.getElementById(id) as HTMLStyleElement | null;
+        if (!el) {
+          el = document.createElement("style");
+          el.id = id;
+          document.head.appendChild(el);
         }
-      });
+        el.textContent = fontFaces.join("\n");
+      }
+
+      // Inject Google Font <link> tags
+      if (Array.isArray(fontUrls) && fontUrls.length > 0) {
+        fontUrls.forEach((url: string) => {
+          const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
+          if (!document.getElementById(id)) {
+            const link = document.createElement("link");
+            link.id = id;
+            link.rel = "stylesheet";
+            link.href = url;
+            document.head.appendChild(link);
+          }
+        });
+      }
     }
   }, [currentThemeSettings, vendorSlug]);
 

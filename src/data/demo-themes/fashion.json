@@ -19,7 +19,11 @@
     "destructive-foreground": "0 0% 100%"
   },
   "fonts": {
-    "heading": "Georgia, serif",
-    "body": "system-ui, -apple-system, sans-serif"
+    "heading": "'Playfair Display', Georgia, serif",
+    "body": "'Inter', system-ui, -apple-system, sans-serif",
+    "fontUrls": [
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
+    ]
   }
 }

@@ -38,10 +38,13 @@ export default function VendorKeywordClient({
     let mounted = true;
 
     const loadVendorData = async () => {
-      const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(
-        /\/$/,
-        "",
-      );
+      // NEXT_PUBLIC_API_BASE_URL points to the core Next.js server (e.g. spotcove.com)
+      // NEXT_PUBLIC_CORE_URL is the legacy env var for the same purpose
+      const apiBase = (
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        process.env.NEXT_PUBLIC_CORE_URL ||
+        ""
+      ).replace(/\/$/, "");
       const apiUrl = `${apiBase}/api/storefront/vendor/${vendorSlug}`;
 
       try {
