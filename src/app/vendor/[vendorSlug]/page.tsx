@@ -57,11 +57,58 @@ export default async function VendorRootPage({ params }: VendorRootPageProps) {
     }
   }
 
+  const fontLinks = buildFontLinks(initialData?.themeJSON);
+  const fontCssVars = buildFontCssVars(initialData?.themeJSON);
+
   return (
-    <VendorKeywordClient
-      vendorSlug={vendorSlug}
-      keyword={keyword}
-      initialData={initialData}
-    />
+    <>
+      {fontLinks.map((url) => (
+        <link key={url} rel="stylesheet" href={url} />
+      ))}
+      {fontCssVars && (
+        <style dangerouslySetInnerHTML={{ __html: fontCssVars }} />
+      )}
+      <VendorKeywordClient
+        vendorSlug={vendorSlug}
+        keyword={keyword}
+        initialData={initialData}
+      />
+    </>
   );
+}
+
+function isBareFont(v: string) {
+  return typeof v === "string" && !v.includes(",") && !v.includes("(");
+}
+function toFontStack(name: string) {
+  return `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
+}
+function toGoogleUrl(name: string) {
+  return `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
+}
+
+function buildFontLinks(themeJson: any): string[] {
+  if (!themeJson?.fonts) return [];
+  const { heading, body, fontUrls } = themeJson.fonts;
+  const urls: string[] = Array.isArray(fontUrls) ? [...fontUrls] : [];
+  if (heading && isBareFont(heading))
+    urls.push(toGoogleUrl(heading.replace(/['"]/g, "").trim()));
+  if (body && isBareFont(body) && body !== heading)
+    urls.push(toGoogleUrl(body.replace(/['"]/g, "").trim()));
+  return [...new Set(urls)];
+}
+
+function buildFontCssVars(themeJson: any): string {
+  if (!themeJson?.fonts) return "";
+  const { heading, body } = themeJson.fonts;
+  const vars: string[] = [];
+  if (heading)
+    vars.push(
+      `--font-heading: ${isBareFont(heading) ? toFontStack(heading) : heading}`,
+    );
+  if (body)
+    vars.push(
+      `--font-body: ${isBareFont(body) ? toFontStack(body) : body}`,
+    );
+  return vars.length ? `:root { ${vars.join("; ")} }` : "";
 }
