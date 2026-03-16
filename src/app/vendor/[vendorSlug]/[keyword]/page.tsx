@@ -157,7 +157,7 @@ export default async function VendorKeywordPage({
   }
 
   const fontLinks = buildFontLinks(initialData?.themeJSON);
-  const fontCssVars = buildFontCssVars(initialData?.themeJSON);
+  const ssrCss = buildSSRCss(initialData?.themeJSON);
 
   return (
     <>
@@ -174,9 +174,7 @@ export default async function VendorKeywordPage({
       {fontLinks.map((url) => (
         <link key={url} rel="stylesheet" href={url} />
       ))}
-      {fontCssVars && (
-        <style dangerouslySetInnerHTML={{ __html: fontCssVars }} />
-      )}
+      {ssrCss && <style dangerouslySetInnerHTML={{ __html: ssrCss }} />}
       <VendorKeywordClient
         vendorSlug={vendorSlug}
         keyword={keyword}
@@ -221,5 +219,20 @@ function buildFontCssVars(themeJson: any): string {
     );
   if (body && !body.startsWith("var("))
     vars.push(`--font-body: ${isBareFont(body) ? toFontStack(body) : body}`);
-  return vars.length ? `:root { ${vars.join("; ")} }` : "";
+  return vars.length ? vars.join("; ") : "";
+}
+
+function buildColorCssVars(themeJson: any): string {
+  if (!themeJson?.colors) return "";
+  return Object.entries(themeJson.colors)
+    .filter(([, v]) => typeof v === "string" && v)
+    .map(([k, v]) => `--${k}: ${v}`)
+    .join("; ");
+}
+
+function buildSSRCss(themeJson: any): string {
+  const parts = [buildColorCssVars(themeJson), buildFontCssVars(themeJson)]
+    .filter(Boolean)
+    .join("; ");
+  return parts ? `:root { ${parts} }` : "";
 }
