@@ -23,15 +23,22 @@ function hexToHSL(hex: string): string {
   const b = parseInt(clean.substring(4, 6), 16) / 255;
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
-  let h = 0, s = 0;
+  let h = 0,
+    s = 0;
   const l = (max + min) / 2;
   if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
     switch (max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+        break;
+      case g:
+        h = ((b - r) / d + 2) / 6;
+        break;
+      case b:
+        h = ((r - g) / d + 4) / 6;
+        break;
     }
   }
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
@@ -40,7 +47,10 @@ function hexToHSL(hex: string): string {
 function normalizeFontUrl(url: string): string {
   if (!url) return url;
   if (/[?&]display=/.test(url))
-    return url.replace(/([?&]display=)(swap|fallback|optional|auto|block)/, "$1block");
+    return url.replace(
+      /([?&]display=)(swap|fallback|optional|auto|block)/,
+      "$1block",
+    );
   const sep = url.includes("?") ? "&" : "?";
   return `${url}${sep}display=block`;
 }
@@ -83,10 +93,22 @@ function buildThemeScript(source: any): string {
   });
 
   const fonts = source?.fonts ?? {};
-  if (typeof fonts.heading === "string" && fonts.heading && !fonts.heading.startsWith("var("))
-    setters.push(`r.setProperty('--font-heading','${fonts.heading.replace(/'/g, "\\'")}')`);
-  if (typeof fonts.body === "string" && fonts.body && !fonts.body.startsWith("var("))
-    setters.push(`r.setProperty('--font-body','${fonts.body.replace(/'/g, "\\'")}')`);
+  if (
+    typeof fonts.heading === "string" &&
+    fonts.heading &&
+    !fonts.heading.startsWith("var(")
+  )
+    setters.push(
+      `r.setProperty('--font-heading','${fonts.heading.replace(/'/g, "\\'")}')`,
+    );
+  if (
+    typeof fonts.body === "string" &&
+    fonts.body &&
+    !fonts.body.startsWith("var(")
+  )
+    setters.push(
+      `r.setProperty('--font-body','${fonts.body.replace(/'/g, "\\'")}')`,
+    );
 
   const varPart = setters.length
     ? `var d=document.documentElement;var r=d.style;${setters.join(";")};`
@@ -107,7 +129,7 @@ function buildThemeScript(source: any): string {
     `for(var i=0;i<flinks.length;i++){var fl=flinks[i];if(fl.sheet){onDone();}` +
     `else{fl.addEventListener('load',onDone,{once:true});fl.addEventListener('error',onDone,{once:true});}}}`;
 
-  return `(function(){try{${varPart}${gateRelease}}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_){}}})()`; 
+  return `(function(){try{${varPart}${gateRelease}}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_){}}})()`;
 }
 
 // ─── Layout component ────────────────────────────────────────────────────────
@@ -139,10 +161,7 @@ async function VendorLayout({ children, params }: Props) {
       ))}
       {/* Theme vars + gate-release script — runs synchronously in <body> */}
       <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      <VendorThemeWrapper
-        themeSettings={source}
-        vendorSlug={params.vendorSlug}
-      >
+      <VendorThemeWrapper themeSettings={source} vendorSlug={params.vendorSlug}>
         {children}
       </VendorThemeWrapper>
     </>

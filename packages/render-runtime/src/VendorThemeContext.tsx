@@ -102,8 +102,8 @@ export default function VendorThemeProvider({
     // gate reveals, and (b) a font-swap when we inject a duplicate <link>.
     // Subsequent renders (theme changes, client-side navigation) don't have
     // data-vvr so they proceed normally.
-    if (root.hasAttribute('data-vvr')) {
-      root.removeAttribute('data-vvr');
+    if (root.hasAttribute("data-vvr")) {
+      root.removeAttribute("data-vvr");
       return;
     }
 
@@ -151,8 +151,11 @@ export default function VendorThemeProvider({
     const normalizeFontUrl = (url: string): string => {
       if (!url) return url;
       if (/[?&]display=/.test(url))
-        return url.replace(/([?&]display=)(swap|fallback|optional|auto|block)/, '$1block');
-      const sep = url.includes('?') ? '&' : '?';
+        return url.replace(
+          /([?&]display=)(swap|fallback|optional|auto|block)/,
+          "$1block",
+        );
+      const sep = url.includes("?") ? "&" : "?";
       return `${url}${sep}display=block`;
     };
 
@@ -174,7 +177,9 @@ export default function VendorThemeProvider({
         heading && isBare(heading) ? toStack(heading) : withFallback(heading);
       resolvedBody = body && isBare(body) ? toStack(body) : withFallback(body);
 
-      allFontUrls = Array.isArray(fontUrls) ? fontUrls.map(normalizeFontUrl) : [];
+      allFontUrls = Array.isArray(fontUrls)
+        ? fontUrls.map(normalizeFontUrl)
+        : [];
       if (heading && isBare(heading)) {
         const u = toGoogleUrl(heading.replace(/['"]/g, "").trim());
         if (!allFontUrls.includes(u)) allFontUrls.push(u);
@@ -194,7 +199,9 @@ export default function VendorThemeProvider({
     // Server-rendered <link> elements don't have the vendor-font id, so we must
     // also check by href to prevent redundant fetches and font-swap events.
     const existingHrefs = new Set(
-      Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')).map((l) => l.href)
+      Array.from(
+        document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+      ).map((l) => l.href),
     );
     const missingFontUrls = allFontUrls.filter((url) => {
       const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
