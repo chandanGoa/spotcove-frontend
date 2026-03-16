@@ -6,30 +6,38 @@ import { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import VendorThemeWrapper from "./VendorThemeWrapper";
 import vendorsData from "@/data/vendors.json";
+import { VENDOR_REGISTRY } from "@/data/vendor-registry";
 
 type Props = {
   children: ReactNode;
   params: { vendorSlug: string };
 };
 
-/** Generate :root { --var: value; } CSS for SSR injection (prevents FOUC) */
-function generateSSRThemeCSS(themeSettings: any): string {
-  if (!themeSettings) return "";
+function buildSSRThemeCSS(vendorSlug: string, fallbackSettings: any): string {
+  // Prefer the actual theme JSON from the vendor registry (has real colors/fonts)
+  // over vendors.json which only stores overrides (usually empty).
+  const registryEntry = VENDOR_REGISTRY[vendorSlug];
+  const themeJson = registryEntry
+    ? (Object.values(registryEntry)[0] as any)?.themeJson
+    : null;
+
+  const source = themeJson ?? fallbackSettings;
+  if (!source) return "";
+
   const vars: string[] = [];
 
-  const colors = themeSettings.colors ?? {};
+  const colors = source.colors ?? {};
   Object.entries(colors).forEach(([key, value]) => {
-    if (typeof value === "string" && value) vars.push(`--${key}: ${value};`);
+    if (typeof value === "string" && value) vars.push(`--${key}: ${value}`);
   });
 
-  const fonts = themeSettings.fonts ?? {};
-  if (typeof fonts.heading === "string" && fonts.heading)
-    vars.push(`--font-heading: ${fonts.heading};`);
-  if (typeof fonts.body === "string" && fonts.body)
-    vars.push(`--font-body: ${fonts.body};`);
+  const fonts = source.fonts ?? {};
+  if (typeof fonts.heading === "string" && fonts.heading && !fonts.heading.startsWith("var("))
+    vars.push(`--font-heading: ${fonts.heading}`);
+  if (typeof fonts.body === "string" && fonts.body && !fonts.body.startsWith("var("))
+    vars.push(`--font-body: ${fonts.body}`);
 
-  if (!vars.length) return "";
-  return `:root { ${vars.join(" ")} }`;
+  return vars.length ? `:root { ${vars.join("; ")} }` : "";
 }
 
 async function VendorLayout({ children, params }: Props) {
@@ -41,22 +49,14 @@ async function VendorLayout({ children, params }: Props) {
     notFound();
   }
 
-  const themeSettings = vendor.custom_theme_settings || {
-    colors: {
-      primary: "#000000",
-      secondary: "#ffffff",
-      background: "#ffffff",
-      foreground: "#000000",
-    },
-  };
-
-  const ssrCSS = generateSSRThemeCSS(themeSettings);
+  const fallbackSettings = vendor.custom_theme_settings || {};
+  const ssrCSS = buildSSRThemeCSS(params.vendorSlug, fallbackSettings);
 
   return (
     <>
       {ssrCSS && <style dangerouslySetInnerHTML={{ __html: ssrCSS }} />}
       <VendorThemeWrapper
-        themeSettings={themeSettings}
+        themeSettings={fallbackSettings}
         vendorSlug={params.vendorSlug}
       >
         {children}
