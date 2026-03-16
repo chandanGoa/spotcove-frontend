@@ -120,7 +120,9 @@ export default function VendorThemeProvider({
       const resolvedBody = body && isBare(body) ? toStack(body) : body;
 
       // Collect Google Font URLs — from fontUrls prop + auto-generated for bare names
-      const allFontUrls: string[] = Array.isArray(fontUrls) ? [...fontUrls] : [];
+      const allFontUrls: string[] = Array.isArray(fontUrls)
+        ? [...fontUrls]
+        : [];
       if (heading && isBare(heading)) {
         const u = toGoogleUrl(heading.replace(/['"]/g, "").trim());
         if (!allFontUrls.includes(u)) allFontUrls.push(u);
@@ -130,7 +132,8 @@ export default function VendorThemeProvider({
         if (!allFontUrls.includes(u)) allFontUrls.push(u);
       }
 
-      if (resolvedHeading) root.style.setProperty("--font-heading", resolvedHeading);
+      if (resolvedHeading)
+        root.style.setProperty("--font-heading", resolvedHeading);
       if (resolvedBody) root.style.setProperty("--font-body", resolvedBody);
 
       // Inject @font-face declarations (highest priority)
