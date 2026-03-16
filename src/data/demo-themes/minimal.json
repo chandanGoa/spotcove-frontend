@@ -19,8 +19,7 @@
     "destructive-foreground": "0 0% 100%"
   },
   "fonts": {
-    "heading": "'Inter', system-ui, -apple-system, sans-serif",
-    "body": "'Inter', system-ui, -apple-system, sans-serif",
-    "fontUrls": ["https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"]
+    "heading": "var(--font-inter)",
+    "body": "var(--font-inter)"
   }
 }
