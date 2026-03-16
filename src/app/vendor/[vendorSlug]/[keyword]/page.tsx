@@ -2,7 +2,7 @@
  * Vendor Keyword Page
  */
 
-import { VENDOR_REGISTRY } from "@/data/vendor-registry";
+import { VENDOR_REGISTRY, getVendorLayoutConfig } from "@/data/vendor-registry";
 import { getVendorPlan, isTrialExpired } from "@/data/vendor-plans";
 import { notFound } from "next/navigation";
 import VendorKeywordClient from "./VendorKeywordClient";
@@ -113,5 +113,54 @@ export default async function VendorKeywordPage({
     return <VendorNotFound vendorSlug={vendorSlug} keyword={keyword} />;
   }
 
-  return <VendorKeywordClient vendorSlug={vendorSlug} keyword={keyword} />;
+  // Fetch vendor data server-side to avoid client-side loading flash
+  let initialData: {
+    layoutJSON?: any;
+    themeJSON?: any;
+    contentJSON?: Record<string, any>;
+    products?: any[];
+    collections?: any[];
+  } | null = null;
+
+  const apiBase = (
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_CORE_URL ||
+    ""
+  ).replace(/\/$/, "");
+
+  if (apiBase) {
+    try {
+      const res = await fetch(
+        `${apiBase}/api/storefront/vendor/${vendorSlug}`,
+        { next: { revalidate: 60 } },
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.error) initialData = data;
+      }
+    } catch {
+      // fall back to local registry
+    }
+  }
+
+  if (!initialData) {
+    const fallback = getVendorLayoutConfig(vendorSlug, keyword);
+    if (fallback) {
+      initialData = {
+        layoutJSON: fallback.layoutJson,
+        themeJSON: fallback.themeJson,
+        contentJSON: {},
+        products: [],
+        collections: [],
+      };
+    }
+  }
+
+  return (
+    <VendorKeywordClient
+      vendorSlug={vendorSlug}
+      keyword={keyword}
+      initialData={initialData}
+    />
+  );
 }

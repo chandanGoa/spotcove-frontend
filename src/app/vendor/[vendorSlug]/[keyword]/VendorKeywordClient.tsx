@@ -3,17 +3,11 @@
  */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   VendorLayoutRenderer,
   VendorThemeProvider,
 } from "@spotcove/render-runtime";
-import { getVendorLayoutConfig } from "@/data/vendor-registry";
-
-interface VendorKeywordClientProps {
-  vendorSlug: string;
-  keyword?: string;
-}
 
 interface VendorPublicPayload {
   layoutJSON?: any;
@@ -24,114 +18,22 @@ interface VendorPublicPayload {
   error?: string;
 }
 
+interface VendorKeywordClientProps {
+  vendorSlug: string;
+  keyword?: string;
+  initialData?: VendorPublicPayload | null;
+}
+
 export default function VendorKeywordClient({
   vendorSlug,
   keyword = "home",
+  initialData = null,
 }: VendorKeywordClientProps) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [vendorData, setVendorData] = useState<VendorPublicPayload | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadVendorData = async () => {
-      // NEXT_PUBLIC_API_BASE_URL points to the core Next.js server (e.g. spotcove.com)
-      // NEXT_PUBLIC_CORE_URL is the legacy env var for the same purpose
-      const apiBase = (
-        process.env.NEXT_PUBLIC_API_BASE_URL ||
-        process.env.NEXT_PUBLIC_CORE_URL ||
-        ""
-      ).replace(/\/$/, "");
-      const apiUrl = `${apiBase}/api/storefront/vendor/${vendorSlug}`;
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch(apiUrl);
-
-        console.log("Vendor API status:", res.status);
-
-        if (!res.ok) {
-          console.error("Vendor API fetch failed with status:", res.status);
-          throw new Error(`Failed to load vendor data (${res.status})`);
-        }
-
-        const data: VendorPublicPayload = await res.json();
-        console.log("Vendor API Response:", data);
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        const responseLayout = data.layoutJSON;
-        const responseTheme = data.themeJSON;
-        const responseContent = data.contentJSON;
-        const responseProducts = data.products ?? [];
-
-        console.log("Vendor payload checks:", {
-          hasLayoutJSON: Boolean(responseLayout),
-          hasThemeJSON: Boolean(responseTheme),
-          hasContentJSON: Boolean(responseContent),
-          productsCount: Array.isArray(responseProducts)
-            ? responseProducts.length
-            : 0,
-        });
-
-        if (mounted) {
-          setVendorData(data);
-        }
-      } catch (err) {
-        console.error(
-          "Vendor API fetch error:",
-          err instanceof Error ? err.message : "Failed to load vendor data",
-        );
-
-        if (mounted) {
-          const fallbackConfig = getVendorLayoutConfig(vendorSlug, keyword);
-
-          if (fallbackConfig) {
-            console.warn(
-              "Vendor API fallback",
-              vendorSlug,
-              keyword,
-              "using local registry",
-            );
-            setVendorData({
-              layoutJSON: fallbackConfig.layoutJson,
-              themeJSON: fallbackConfig.themeJson,
-              contentJSON: {},
-              products: [],
-              collections: [],
-            });
-          } else {
-            setError(
-              err instanceof Error ? err.message : "Failed to load vendor data",
-            );
-          }
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadVendorData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [keyword, vendorSlug]);
-
-  const layoutJson = vendorData?.layoutJSON;
-  const themeJson = vendorData?.themeJSON;
-  const contentJSON = vendorData?.contentJSON ?? {};
-  const products = vendorData?.products ?? [];
-  const collections = vendorData?.collections ?? [];
+  const layoutJson = initialData?.layoutJSON;
+  const themeJson = initialData?.themeJSON;
+  const contentJSON = initialData?.contentJSON ?? {};
+  const products = initialData?.products ?? [];
+  const collections = initialData?.collections ?? [];
 
   const componentData = useMemo(() => {
     const data: Record<string, any> = {};
@@ -164,16 +66,10 @@ export default function VendorKeywordClient({
     return data;
   }, [collections, layoutJson, products]);
 
-  if (loading) {
-    return null;
-  }
-
-  if (error || !layoutJson || !themeJson) {
+  if (!layoutJson || !themeJson) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-destructive">
-          {error ?? "Vendor data is incomplete."}
-        </p>
+        <p className="text-destructive">Vendor data is incomplete.</p>
       </div>
     );
   }
