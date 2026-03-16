@@ -62,6 +62,52 @@ function resolveThemeSource(vendorSlug: string, fallback: any): any {
   return themeJson ?? fallback ?? {};
 }
 
+function normalizeThemeSource(raw: any): any {
+  if (!raw) return null;
+  if (raw.colors || raw.fonts) return raw;
+  if (raw.themeJSON?.colors || raw.themeJSON?.fonts) return raw.themeJSON;
+  if (raw.themeJson?.colors || raw.themeJson?.fonts) return raw.themeJson;
+  if (raw.theme?.colors || raw.theme?.fonts) return raw.theme;
+  if (
+    raw.selected_theme?.settings_json?.colors ||
+    raw.selected_theme?.settings_json?.fonts
+  ) {
+    return raw.selected_theme.settings_json;
+  }
+  if (
+    raw.selected_theme?.settings?.colors ||
+    raw.selected_theme?.settings?.fonts
+  ) {
+    return raw.selected_theme.settings;
+  }
+  if (raw.custom_theme_settings?.colors || raw.custom_theme_settings?.fonts) {
+    return raw.custom_theme_settings;
+  }
+  return null;
+}
+
+async function fetchVendorThemeSource(vendorSlug: string): Promise<any | null> {
+  const apiBase = (
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_CORE_URL ||
+    ""
+  ).replace(/\/$/, "");
+
+  if (!apiBase) return null;
+
+  try {
+    const res = await fetch(`${apiBase}/api/storefront/vendor/${vendorSlug}`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data?.error) return null;
+    return normalizeThemeSource(data);
+  } catch {
+    return null;
+  }
+}
+
 /** Return font stylesheet URLs from the theme source, normalised to display=block. */
 function resolveFontUrls(source: any): string[] {
   const rawUrls: unknown[] = source?.fonts?.fontUrls ?? [];
@@ -71,24 +117,25 @@ function resolveFontUrls(source: any): string[] {
 }
 
 /**
- * Build a tiny synchronous inline script that:
- *  1. Sets CSS custom properties before the first paint.
- *  2. Releases the visibility gate AFTER document.fonts.ready resolves.
+ * Build a CSS :root{} block with all vendor CSS custom properties.
  *
- * Font <link> elements are rendered as real HTML (see VendorLayout below) so
- * the browser includes them in the document.fonts.ready cycle.  We must NOT
- * inject font links here via JS because document.fonts.ready may have already
- * resolved by the time the dynamic link is processed, causing the gate to
- * release before fonts are loaded.
+ * Rendered as <style precedence="high" data-vendor={slug}>.
+ * Next.js/React guarantees that precedence-tagged styles are hoisted into
+ * <head> in the INITIAL HTML RESPONSE — even from async Server Components.
+ * This is the only reliable way to have CSS vars applied before first paint.
+ *
+ * A <script> with setProperty() calls does NOT have this guarantee: async RSC
+ * output streams, and the script may arrive in a late chunk, AFTER the first
+ * paint has already occurred with the wrong (globals.css default) values.
  */
-function buildThemeScript(source: any): string {
-  const setters: string[] = [];
+function buildVendorCss(source: any): string {
+  const lines: string[] = [];
 
   const colors = source?.colors ?? {};
   Object.entries(colors).forEach(([key, value]) => {
     if (typeof value === "string" && value) {
       const v = value.startsWith("#") ? hexToHSL(value) : value;
-      setters.push(`r.setProperty('--${key}','${v.replace(/'/g, "\\'")}')`);
+      lines.push(`--${key}:${v}`);
     }
   });
 
@@ -98,38 +145,37 @@ function buildThemeScript(source: any): string {
     fonts.heading &&
     !fonts.heading.startsWith("var(")
   )
-    setters.push(
-      `r.setProperty('--font-heading','${fonts.heading.replace(/'/g, "\\'")}')`,
-    );
+    lines.push(`--font-heading:${fonts.heading}`);
   if (
     typeof fonts.body === "string" &&
     fonts.body &&
     !fonts.body.startsWith("var(")
   )
-    setters.push(
-      `r.setProperty('--font-body','${fonts.body.replace(/'/g, "\\'")}')`,
-    );
+    lines.push(`--font-body:${fonts.body}`);
 
-  const varPart = setters.length
-    ? `var d=document.documentElement;var r=d.style;${setters.join(";")};`
-    : `var d=document.documentElement;`;
+  if (!lines.length) return "";
+  return `:root{${lines.join(";")}}`;
+}
 
-  // release(): mark that server vars are applied (data-vvr), then reveal body
-  // waitAndRelease(): call release() only after document.fonts.ready
-  // We first wait for every Google Fonts <link> to have its .sheet populated
-  // (i.e. the @font-face rules are parsed) before we touch document.fonts.ready.
-  // Without this, document.fonts.ready resolves immediately on hard refresh
-  // because the browser hasn't seen any @font-face declarations yet.
-  const gateRelease =
-    `var release=function(){d.setAttribute('data-vvr','1');requestAnimationFrame(function(){requestAnimationFrame(function(){d.removeAttribute('data-vendor-theme-pending');});});};` +
-    `var waitAndRelease=function(){if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(function(rs){setTimeout(rs,2500);})]).then(release);}else{release();}};` +
+/**
+ * Gate-release script: reveals body once Google Fonts CSS file is parsed.
+ * Does NOT set any CSS vars — those are in the <style> tag above.
+ * It is fine for this to arrive in a streaming chunk: the gate keeps the
+ * body hidden (visibility:hidden) until this script runs and the font
+ * stylesheet is ready.
+ */
+function buildGateReleaseScript(): string {
+  return (
+    `(function(){try{` +
+    `var d=document.documentElement;` +
+    `var release=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){d.removeAttribute('data-vendor-theme-pending');});});};` +
     `var flinks=[].slice.call(document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis"]'));` +
-    `if(!flinks.length){waitAndRelease();}` +
-    `else{var pending=flinks.length;var onDone=function(){if(--pending<=0)waitAndRelease();};` +
+    `if(!flinks.length){release();}` +
+    `else{var pending=flinks.length;var onDone=function(){if(--pending<=0)release();};` +
     `for(var i=0;i<flinks.length;i++){var fl=flinks[i];if(fl.sheet){onDone();}` +
-    `else{fl.addEventListener('load',onDone,{once:true});fl.addEventListener('error',onDone,{once:true});}}}`;
-
-  return `(function(){try{${varPart}${gateRelease}}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_){}}})()`;
+    `else{fl.addEventListener('load',onDone,{once:true});fl.addEventListener('error',onDone,{once:true});}}}` +
+    `}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_){}}})()`
+  );
 }
 
 // ─── Layout component ────────────────────────────────────────────────────────
@@ -144,23 +190,34 @@ async function VendorLayout({ children, params }: Props) {
   }
 
   const fallbackSettings = vendor.custom_theme_settings || {};
-  const source = resolveThemeSource(params.vendorSlug, fallbackSettings);
+  const remoteSource = await fetchVendorThemeSource(params.vendorSlug);
+  const source =
+    remoteSource ?? resolveThemeSource(params.vendorSlug, fallbackSettings);
   const fontUrls = resolveFontUrls(source);
-  const themeScript = buildThemeScript(source);
+  const vendorCss = buildVendorCss(source);
+  const gateScript = buildGateReleaseScript();
 
   return (
     <>
-      {/*
-       * Font stylesheets rendered as real HTML elements.
-       * Next.js hoists <link precedence="…"> to <head>, so the browser
-       * discovers these fonts during the initial parse and document.fonts.ready
-       * correctly waits for them before the gate releases.
-       */}
+      {/* Font stylesheets — hoisted to <head> by Next.js precedence handling */}
       {fontUrls.map((url) => (
         <link key={url} rel="stylesheet" href={url} precedence="default" />
       ))}
-      {/* Theme vars + gate-release script — runs synchronously in <body> */}
-      <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      {/*
+       * CSS vars in a <style precedence="high"> — React/Next.js GUARANTEES
+       * this is in <head> in the initial HTML response, before any body paint.
+       * data-vendor attribute is read by VendorThemeContext to skip client-side
+       * var-writes on initial mount (server already set everything correctly).
+       */}
+      {vendorCss && (
+        <style
+          precedence="high"
+          data-vendor={params.vendorSlug}
+          dangerouslySetInnerHTML={{ __html: vendorCss }}
+        />
+      )}
+      {/* Gate-release script — reveals body after font CSS is parsed */}
+      <script dangerouslySetInnerHTML={{ __html: gateScript }} />
       <VendorThemeWrapper themeSettings={source} vendorSlug={params.vendorSlug}>
         {children}
       </VendorThemeWrapper>

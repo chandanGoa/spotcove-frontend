@@ -95,17 +95,19 @@ export default function VendorThemeProvider({
   useIsomorphicLayoutEffect(() => {
     const root = document.documentElement;
 
-    // If the server-side inline script already applied CSS vars (it sets
-    // data-vvr='1' just before releasing the visibility gate), skip the
-    // initial-mount run completely.
-    // This avoids: (a) a brief color flash when a re-write lands after the
-    // gate reveals, and (b) a font-swap when we inject a duplicate <link>.
-    // Subsequent renders (theme changes, client-side navigation) don't have
-    // data-vvr so they proceed normally.
-    if (root.hasAttribute("data-vvr")) {
-      root.removeAttribute("data-vvr");
-      return;
-    }
+    // The server renders a <style data-vendor="{vendorSlug}" precedence="high">
+    // containing all CSS vars. If that element exists in the DOM, the server
+    // already applied the correct vars — skip this initial-mount write entirely.
+    //
+    // Why this guard is reliable (unlike the previous data-vvr approach):
+    //  - The <style precedence> tag is in <head> of the initial HTML response.
+    //  - By the time ANY JavaScript runs (let alone React hydration), the browser
+    //    has fully parsed the HTML. The style element is in the DOM.
+    //  - document.querySelector() is synchronous — no race condition.
+    //
+    // Client-side navigation: no server style → querySelector returns null →
+    // effect runs and writes vars normally. ✓
+    if (document.querySelector(`style[data-vendor="${vendorSlug}"]`)) return;
 
     // --- Batch all DOM READS before any DOM WRITES to avoid forced reflow ---
 
@@ -123,29 +125,17 @@ export default function VendorThemeProvider({
     const isBare = (v: string) =>
       typeof v === "string" && !v.includes(",") && !v.includes("(");
 
-    // Metric-override fallback font names (must match @font-face definitions in page SSR <style>)
-    const METRIC_FALLBACK: Record<string, string> = {
-      inter: "Inter Fallback",
-      "playfair display": "Playfair Display Fallback",
-      nunito: "Nunito Fallback",
-      poppins: "Poppins Fallback",
-    };
+    // NOTE: The METRIC_FALLBACK @font-face definitions (Inter Fallback, etc.)
+    // only exist in the main (port 3000) app. This frontend runtime does NOT
+    // ship those @font-face rules, so we must NOT insert them into the stack —
+    // doing so causes the browser to skip the named font and render system-ui.
 
-    /** Insert the metric-override variant as second item in a font-family stack. */
-    const withFallback = (fontFamily: string): string => {
-      const parts = fontFamily.split(",");
-      if (!parts.length) return fontFamily;
-      const primaryFont = parts[0].trim().replace(/['"]/g, "");
-      const fb = METRIC_FALLBACK[primaryFont.toLowerCase()];
-      if (!fb || fontFamily.includes(fb)) return fontFamily;
-      return [parts[0], ` '${fb}'`, ...parts.slice(1)].join(",");
-    };
+    /** Keep the first family from an existing stack, strip any trailing cruft. */
+    const withFallback = (fontFamily: string): string => fontFamily;
 
     const toStack = (name: string) => {
       const clean = name.replace(/'/g, "").trim();
-      const fb = METRIC_FALLBACK[clean.toLowerCase()];
-      const fbPart = fb ? `, '${fb}'` : "";
-      return `'${clean}'${fbPart}, system-ui, -apple-system, sans-serif`;
+      return `'${clean}', system-ui, -apple-system, sans-serif`;
     };
 
     const normalizeFontUrl = (url: string): string => {
