@@ -12,7 +12,13 @@ import { cn } from "../utils";
 import { getThemeOverrideStyles } from "../theme-wrapper";
 
 interface SocialLink {
-  platform: "facebook" | "instagram" | "twitter" | "linkedin" | "youtube" | string;
+  platform:
+    | "facebook"
+    | "instagram"
+    | "twitter"
+    | "linkedin"
+    | "youtube"
+    | string;
   href: string;
 }
 
@@ -48,24 +54,50 @@ const toCssValue = (v?: number | string) =>
 // Minimal SVG icons for common social platforms
 const SocialIcons: Record<string, React.FC<{ size?: number }>> = {
   facebook: ({ size = 20 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   ),
   instagram: ({ size = 20 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden="true"
+    >
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
     </svg>
   ),
   twitter: ({ size = 20 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
     </svg>
   ),
   linkedin: ({ size = 20 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
       <rect x="2" y="9" width="4" height="12" />
       <circle cx="4" cy="4" r="2" />
@@ -80,9 +112,11 @@ function SocialButton({
   link: SocialLink;
   onClick?: (platform: string, href: string) => void;
 }) {
-  const Icon = SocialIcons[link.platform] ?? (({ size = 20 }) => (
-    <span style={{ width: size, height: size, display: "inline-block" }} />
-  ));
+  const Icon =
+    SocialIcons[link.platform] ??
+    (({ size = 20 }) => (
+      <span style={{ width: size, height: size, display: "inline-block" }} />
+    ));
 
   return (
     <a
@@ -127,7 +161,11 @@ export const ContactSection = memo(function ContactSection({
     containerPadding,
   } = settings;
 
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
   const [submitted, setSubmitted] = useState(false);
 
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
@@ -258,7 +296,10 @@ export const ContactSection = memo(function ContactSection({
                     required
                     value={formData.email}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, email: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
                     }
                     className="px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     style={{ fontFamily: "var(--font-body, inherit)" }}

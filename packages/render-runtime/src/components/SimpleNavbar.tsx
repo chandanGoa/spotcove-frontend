@@ -241,7 +241,10 @@ export const SimpleNavbar: React.FC<SimpleNavbarProps> = ({
           <div className="hidden md:flex items-center gap-3">
             {/* Search */}
             {hasSearch && (
-              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+              <form
+                onSubmit={handleSearchSubmit}
+                className="relative flex items-center"
+              >
                 {searchExpanded ? (
                   <>
                     <input
@@ -378,7 +381,10 @@ export const SimpleNavbar: React.FC<SimpleNavbarProps> = ({
             <div className="px-4 py-3 border-t border-border flex items-center gap-4">
               {hasCart && (
                 <button
-                  onClick={() => { onCartClick?.(); setMobileOpen(false); }}
+                  onClick={() => {
+                    onCartClick?.();
+                    setMobileOpen(false);
+                  }}
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <span className="relative">
@@ -394,11 +400,18 @@ export const SimpleNavbar: React.FC<SimpleNavbarProps> = ({
               )}
               {hasAuth && (
                 <button
-                  onClick={() => { onAuthClick?.(); setMobileOpen(false); }}
+                  onClick={() => {
+                    onAuthClick?.();
+                    setMobileOpen(false);
+                  }}
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {user?.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full object-cover border border-border" />
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-6 h-6 rounded-full object-cover border border-border"
+                    />
                   ) : (
                     <UserIcon />
                   )}

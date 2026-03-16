@@ -54,10 +54,7 @@ export const OurProcessSection = memo(function OurProcessSection({
 
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
 
-  const handleStepClick = (
-    e: React.MouseEvent,
-    href: string,
-  ) => {
+  const handleStepClick = (e: React.MouseEvent, href: string) => {
     if (onStepLinkClick) {
       e.preventDefault();
       onStepLinkClick(href);
@@ -102,9 +99,7 @@ export const OurProcessSection = memo(function OurProcessSection({
         <div
           className={cn(
             "col-span-2 w-full grid gap-4 text-center",
-            steps.length <= 3
-              ? `grid-cols-${steps.length}`
-              : "grid-cols-4",
+            steps.length <= 3 ? `grid-cols-${steps.length}` : "grid-cols-4",
             "max-lg:grid-cols-2 max-md:grid-cols-1",
           )}
         >

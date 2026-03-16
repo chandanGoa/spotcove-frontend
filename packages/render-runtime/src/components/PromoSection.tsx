@@ -91,7 +91,10 @@ export const PromoSection = memo(function PromoSection({
       >
         <h2
           className="text-3xl md:text-4xl font-extrabold tracking-tight"
-          style={{ fontFamily: "var(--font-heading, inherit)", lineHeight: "1.15" }}
+          style={{
+            fontFamily: "var(--font-heading, inherit)",
+            lineHeight: "1.15",
+          }}
         >
           {title}
         </h2>
@@ -108,8 +111,8 @@ export const PromoSection = memo(function PromoSection({
           </p>
         )}
 
-        {buttonText && (
-          buttonLink ? (
+        {buttonText &&
+          (buttonLink ? (
             <a href={buttonLink}>
               <Button
                 size="lg"
@@ -135,8 +138,7 @@ export const PromoSection = memo(function PromoSection({
             >
               {buttonText}
             </Button>
-          )
-        )}
+          ))}
       </div>
     </section>
   );

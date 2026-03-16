@@ -138,11 +138,15 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
 
   // For media variants use the light subtype coloring by default (or dark if explicitly dark)
   const colorSubtype =
-    subtype === "dark" ? "dark" :
-    subtype === "light" ? "light" :
-    isMediaLeft || isMediaRight || isCentered ? "light" :
-    isSplit ? "dark" :
-    "light";
+    subtype === "dark"
+      ? "dark"
+      : subtype === "light"
+        ? "light"
+        : isMediaLeft || isMediaRight || isCentered
+          ? "light"
+          : isSplit
+            ? "dark"
+            : "light";
 
   const sectionStyle: React.CSSProperties = {
     ...themeOverrideStyles,
@@ -150,14 +154,22 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   };
 
   const textBlock = (
-    <div className={cn("flex flex-col gap-6", isCentered ? "items-center text-center max-w-4xl" : "max-w-3xl")}>
+    <div
+      className={cn(
+        "flex flex-col gap-6",
+        isCentered ? "items-center text-center max-w-4xl" : "max-w-3xl",
+      )}
+    >
       <h1
         className={cn(
           "font-extrabold tracking-tight",
           isCentered ? "text-7xl" : "text-5xl md:text-6xl",
           colorSubtype === "dark" ? "text-background" : "text-foreground",
         )}
-        style={{ fontFamily: "var(--font-heading, inherit)", lineHeight: "1.1" }}
+        style={{
+          fontFamily: "var(--font-heading, inherit)",
+          lineHeight: "1.1",
+        }}
       >
         {resolvedTitle}
       </h1>
@@ -165,7 +177,9 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
         className={cn(
           "text-lg",
           isCentered ? "text-xl" : "",
-          colorSubtype === "dark" ? "text-background/80" : "text-muted-foreground",
+          colorSubtype === "dark"
+            ? "text-background/80"
+            : "text-muted-foreground",
         )}
         style={{ fontFamily: "var(--font-body, inherit)", lineHeight: "1.6" }}
       >
@@ -211,10 +225,12 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   );
 
   const imageBlock = image ? (
-    <div className={cn(
-      "relative overflow-hidden rounded-2xl shadow-lg",
-      isSplit ? "w-full" : "w-full max-w-3xl",
-    )}>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl shadow-lg",
+        isSplit ? "w-full" : "w-full max-w-3xl",
+      )}
+    >
       <img src={image} alt="Hero" className="h-auto w-full object-cover" />
     </div>
   ) : null;
@@ -245,7 +261,11 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           </div>
           {imageBlock && (
             <div className="relative overflow-hidden">
-              <img src={image} alt="Hero" className="h-full w-full object-cover" />
+              <img
+                src={image}
+                alt="Hero"
+                className="h-full w-full object-cover"
+              />
             </div>
           )}
         </div>

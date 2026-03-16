@@ -123,10 +123,7 @@ export const FAQSection = memo(function FAQSection({
             {title}
           </h2>
         )}
-        <div
-          className="flex flex-col"
-          style={{ gap: toCssValue(gap ?? 12) }}
-        >
+        <div className="flex flex-col" style={{ gap: toCssValue(gap ?? 12) }}>
           {faqs.map((faq, i) => (
             <FAQAccordionItem key={i} faq={faq} index={i} />
           ))}
@@ -139,7 +136,8 @@ export const FAQSection = memo(function FAQSection({
 FAQSection.displayName = "FAQSection";
 (FAQSection as any).__metadata = {
   tier: 2,
-  description: "Accordion FAQ with animated toggle, themed borders, and CSS variables",
+  description:
+    "Accordion FAQ with animated toggle, themed borders, and CSS variables",
   settingsType: "FAQSectionSettings",
 };
 
