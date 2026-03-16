@@ -266,7 +266,9 @@ function buildThemeScript(themeJson: any): string {
 
   const { heading, body } = themeJson?.fonts ?? {};
   if (heading && !heading.startsWith("var(")) {
-    const v = isBareFont(heading) ? toFontStack(heading) : withMetricFallback(heading);
+    const v = isBareFont(heading)
+      ? toFontStack(heading)
+      : withMetricFallback(heading);
     setters.push(`r.setProperty('--font-heading','${v.replace(/'/g, "\\'")}')`);
   }
   if (body && !body.startsWith("var(")) {

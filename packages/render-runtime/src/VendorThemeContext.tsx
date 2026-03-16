@@ -15,7 +15,13 @@
  */
 "use client";
 
-import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 // useLayoutEffect fires synchronously before paint → no FOUC on client navigation.
 // On the server useLayoutEffect doesn't exist; fall back to useEffect (no-op on server).
@@ -146,8 +152,7 @@ export default function VendorThemeProvider({
 
       resolvedHeading =
         heading && isBare(heading) ? toStack(heading) : withFallback(heading);
-      resolvedBody =
-        body && isBare(body) ? toStack(body) : withFallback(body);
+      resolvedBody = body && isBare(body) ? toStack(body) : withFallback(body);
 
       allFontUrls = Array.isArray(fontUrls) ? [...fontUrls] : [];
       if (heading && isBare(heading)) {
