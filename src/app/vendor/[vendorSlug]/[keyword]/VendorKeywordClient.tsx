@@ -165,11 +165,7 @@ export default function VendorKeywordClient({
   }, [collections, layoutJson, products]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading vendor data...</p>
-      </div>
-    );
+    return null;
   }
 
   if (error || !layoutJson || !themeJson) {
