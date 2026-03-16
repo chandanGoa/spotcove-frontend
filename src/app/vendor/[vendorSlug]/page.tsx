@@ -92,15 +92,15 @@ function toFontStack(name: string) {
   return `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
 }
 function toGoogleUrl(name: string) {
-  return `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=block`;
+  return `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
 }
 
 function buildFontLinks(themeJson: any): string[] {
   if (!themeJson?.fonts) return [];
   const { heading, body, fontUrls } = themeJson.fonts;
-  // Replace display=swap with display=block to prevent FOUT
+  // Replace display=block with display=swap
   const urls: string[] = Array.isArray(fontUrls)
-    ? fontUrls.map((u: string) => u.replace(/display=swap/g, "display=block"))
+    ? fontUrls.map((u: string) => u.replace(/display=block/g, "display=swap"))
     : [];
   if (heading && isBareFont(heading))
     urls.push(toGoogleUrl(heading.replace(/['"]/g, "").trim()));
@@ -131,9 +131,46 @@ function buildColorCssVars(themeJson: any): string {
     .join("; ");
 }
 
+// Font metric overrides for common Google Fonts to reduce layout shift with font-display: swap
+const FONT_METRIC_OVERRIDES: Record<string, string> = {
+  inter:
+    "@font-face{font-family:'Inter Fallback';src:local('Arial');size-adjust:107%;ascent-override:90%;descent-override:22%;line-gap-override:0%}",
+  "playfair display":
+    "@font-face{font-family:'Playfair Display Fallback';src:local('Georgia');size-adjust:94%;ascent-override:85%;descent-override:22%;line-gap-override:0%}",
+  nunito:
+    "@font-face{font-family:'Nunito Fallback';src:local('Arial');size-adjust:102%;ascent-override:100%;descent-override:25%;line-gap-override:0%}",
+  poppins:
+    "@font-face{font-family:'Poppins Fallback';src:local('Arial');size-adjust:112%;ascent-override:92%;descent-override:22%;line-gap-override:0%}",
+};
+
+function buildMetricOverrides(themeJson: any): string {
+  if (!themeJson?.fonts) return "";
+  const { heading, body, fontUrls } = themeJson.fonts as any;
+  const overrides: string[] = [];
+  const seen = new Set<string>();
+  const check = (val: string | undefined) => {
+    if (!val) return;
+    const m = val.match(/["']?([A-Za-z][A-Za-z ]+?)["']?(?=,|$)/);
+    const name = (m?.[1] ?? val).toLowerCase().trim();
+    if (!seen.has(name) && FONT_METRIC_OVERRIDES[name]) {
+      overrides.push(FONT_METRIC_OVERRIDES[name]);
+      seen.add(name);
+    }
+  };
+  (fontUrls ?? []).forEach((u: string) => {
+    const m = u.match(/family=([^:&]+)/);
+    if (m) check(m[1].replace(/\+/g, " "));
+  });
+  check(heading);
+  check(body);
+  return overrides.join("");
+}
+
 function buildSSRCss(themeJson: any): string {
-  const parts = [buildColorCssVars(themeJson), buildFontCssVars(themeJson)]
+  const vars = [buildColorCssVars(themeJson), buildFontCssVars(themeJson)]
     .filter(Boolean)
     .join("; ");
-  return parts ? `:root { ${parts} }` : "";
+  const metricOverrides = buildMetricOverrides(themeJson);
+  const rootBlock = vars ? `:root { ${vars} }` : "";
+  return [metricOverrides, rootBlock].filter(Boolean).join("\n");
 }

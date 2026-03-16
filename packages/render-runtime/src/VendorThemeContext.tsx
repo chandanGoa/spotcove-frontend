@@ -80,6 +80,61 @@ export default function VendorThemeProvider({
   useEffect(() => {
     const root = document.documentElement;
 
+    // --- Batch all DOM READS before any DOM WRITES to avoid forced reflow ---
+
+    // Read existing spacing tokens before writing anything
+    const spacingTokens: Record<string, string> = {
+      "--space-section": "3rem",
+      "--space-container": "1.25rem",
+      "--space-gap": "1.5rem",
+    };
+    const spacingToSet: [string, string][] = Object.entries(spacingTokens).filter(
+      ([token]) => !root.style.getPropertyValue(token),
+    );
+
+    // Pre-check which font links already exist before any DOM mutations
+    const isBare = (v: string) =>
+      typeof v === "string" && !v.includes(",") && !v.includes("(");
+    const toStack = (name: string) =>
+      `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
+    const toGoogleUrl = (name: string) =>
+      `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
+
+    let allFontUrls: string[] = [];
+    let resolvedHeading: string | undefined;
+    let resolvedBody: string | undefined;
+    let fontFaceEl: HTMLStyleElement | null = null;
+    let fontFaces: string[] | undefined;
+
+    if (currentThemeSettings?.fonts) {
+      const fonts = currentThemeSettings.fonts as any;
+      const { heading, body, fontUrls } = fonts;
+      fontFaces = fonts.fontFaces;
+
+      resolvedHeading = heading && isBare(heading) ? toStack(heading) : heading;
+      resolvedBody = body && isBare(body) ? toStack(body) : body;
+
+      allFontUrls = Array.isArray(fontUrls) ? [...fontUrls] : [];
+      if (heading && isBare(heading)) {
+        const u = toGoogleUrl(heading.replace(/['"]/g, "").trim());
+        if (!allFontUrls.includes(u)) allFontUrls.push(u);
+      }
+      if (body && isBare(body) && body !== heading) {
+        const u = toGoogleUrl(body.replace(/['"]/g, "").trim());
+        if (!allFontUrls.includes(u)) allFontUrls.push(u);
+      }
+    }
+
+    // Read font-face element and existing font links (all reads before writes)
+    const fontFaceElId = `vendor-font-faces-${vendorSlug}`;
+    fontFaceEl = document.getElementById(fontFaceElId) as HTMLStyleElement | null;
+    const missingFontUrls = allFontUrls.filter((url) => {
+      const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
+      return !document.getElementById(id);
+    });
+
+    // --- DOM WRITES start here ---
+
     if (currentThemeSettings?.colors) {
       Object.entries(currentThemeSettings.colors).forEach(([key, value]) => {
         if (value && typeof value === "string") {
@@ -91,77 +146,30 @@ export default function VendorThemeProvider({
       });
     }
 
-    const spacingTokens: Record<string, string> = {
-      "--space-section": "3rem",
-      "--space-container": "1.25rem",
-      "--space-gap": "1.5rem",
-    };
-    Object.entries(spacingTokens).forEach(([token, fallback]) => {
-      if (!root.style.getPropertyValue(token)) {
-        root.style.setProperty(token, fallback);
-      }
+    spacingToSet.forEach(([token, fallback]) => {
+      root.style.setProperty(token, fallback);
     });
 
-    if (currentThemeSettings?.fonts) {
-      const { heading, body, fontUrls, fontFaces } =
-        currentThemeSettings.fonts as any;
+    if (resolvedHeading) root.style.setProperty("--font-heading", resolvedHeading);
+    if (resolvedBody) root.style.setProperty("--font-body", resolvedBody);
 
-      // If font value is a bare name (e.g. "Nunito"), convert to a proper
-      // CSS font-family stack and automatically load from Google Fonts.
-      const isBare = (v: string) =>
-        typeof v === "string" && !v.includes(",") && !v.includes("(");
-      const toStack = (name: string) =>
-        `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
-      const toGoogleUrl = (name: string) =>
-        `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
-
-      const resolvedHeading =
-        heading && isBare(heading) ? toStack(heading) : heading;
-      const resolvedBody = body && isBare(body) ? toStack(body) : body;
-
-      // Collect Google Font URLs — from fontUrls prop + auto-generated for bare names
-      const allFontUrls: string[] = Array.isArray(fontUrls)
-        ? [...fontUrls]
-        : [];
-      if (heading && isBare(heading)) {
-        const u = toGoogleUrl(heading.replace(/['"]/g, "").trim());
-        if (!allFontUrls.includes(u)) allFontUrls.push(u);
+    if (Array.isArray(fontFaces) && fontFaces.length > 0) {
+      if (!fontFaceEl) {
+        fontFaceEl = document.createElement("style");
+        fontFaceEl.id = fontFaceElId;
+        document.head.appendChild(fontFaceEl);
       }
-      if (body && isBare(body) && body !== heading) {
-        const u = toGoogleUrl(body.replace(/['"]/g, "").trim());
-        if (!allFontUrls.includes(u)) allFontUrls.push(u);
-      }
-
-      if (resolvedHeading)
-        root.style.setProperty("--font-heading", resolvedHeading);
-      if (resolvedBody) root.style.setProperty("--font-body", resolvedBody);
-
-      // Inject @font-face declarations (highest priority)
-      if (Array.isArray(fontFaces) && fontFaces.length > 0) {
-        const id = `vendor-font-faces-${vendorSlug}`;
-        let el = document.getElementById(id) as HTMLStyleElement | null;
-        if (!el) {
-          el = document.createElement("style");
-          el.id = id;
-          document.head.appendChild(el);
-        }
-        el.textContent = fontFaces.join("\n");
-      }
-
-      // Inject Google Font <link> tags
-      if (allFontUrls.length > 0) {
-        allFontUrls.forEach((url: string) => {
-          const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
-          if (!document.getElementById(id)) {
-            const link = document.createElement("link");
-            link.id = id;
-            link.rel = "stylesheet";
-            link.href = url;
-            document.head.appendChild(link);
-          }
-        });
-      }
+      fontFaceEl.textContent = fontFaces.join("\n");
     }
+
+    missingFontUrls.forEach((url: string) => {
+      const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
+      const link = document.createElement("link");
+      link.id = id;
+      link.rel = "stylesheet";
+      link.href = url;
+      document.head.appendChild(link);
+    });
   }, [currentThemeSettings, vendorSlug]);
 
   // Helper function to convert hex to HSL
