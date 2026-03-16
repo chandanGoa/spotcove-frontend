@@ -164,7 +164,11 @@ export default async function VendorKeywordPage({
       {fontLinks.length > 0 && (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin=""
+          />
         </>
       )}
       {fontLinks.map((url) => (
@@ -216,8 +220,6 @@ function buildFontCssVars(themeJson: any): string {
       `--font-heading: ${isBareFont(heading) ? toFontStack(heading) : heading}`,
     );
   if (body && !body.startsWith("var("))
-    vars.push(
-      `--font-body: ${isBareFont(body) ? toFontStack(body) : body}`,
-    );
+    vars.push(`--font-body: ${isBareFont(body) ? toFontStack(body) : body}`);
   return vars.length ? `:root { ${vars.join("; ")} }` : "";
 }
