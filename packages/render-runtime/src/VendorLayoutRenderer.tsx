@@ -33,6 +33,11 @@ import SimpleNavbar from "./components/SimpleNavbar";
 import MainFooter from "./components/MainFooter";
 import HowItWorksSection from "./components/HowItWorksSection";
 import CtaSection from "./components/CtaSection";
+import TestimonialsSection from "./components/TestimonialsSection";
+import FAQSection from "./components/FAQSection";
+import PromoSection from "./components/PromoSection";
+import OurProcessSection from "./components/OurProcessSection";
+import ContactSection from "./components/ContactSection";
 import { getThemeOverrideStyles } from "./theme-wrapper";
 import { cn } from "./utils";
 import {
@@ -66,6 +71,14 @@ const componentMappers: Record<string, React.ComponentType<any>> = {
   "how-it-works": HowItWorksSection,
   "vendor-cta": CtaSection,
   "promoter-cta": CtaSection,
+  // New components
+  testimonials: TestimonialsSection,
+  faq: FAQSection,
+  "promo-section": PromoSection,
+  "our-process": OurProcessSection,
+  "process-section": OurProcessSection,
+  contact: ContactSection,
+  "contact-section": ContactSection,
   "rich-text": Content,
 };
 
@@ -82,14 +95,37 @@ function NavigationComponent({
   themeOverride,
   className,
   style,
-}: BasicModuleComponentProps) {
+  // Extra data injected from componentData
+  cartCount,
+  onCartClick,
+  user,
+  onAuthClick,
+  onSearch,
+  onLinkClick,
+}: BasicModuleComponentProps & {
+  cartCount?: number;
+  onCartClick?: () => void;
+  user?: { name: string; avatar?: string } | null;
+  onAuthClick?: () => void;
+  onSearch?: (query: string) => void;
+  onLinkClick?: (href: string) => void;
+}) {
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
   return (
     <div
       className={cn(settings?.className, className)}
       style={{ ...themeOverrideStyles, ...style }}
     >
-      <SimpleNavbar settings={settings} themeOverride={themeOverride} />
+      <SimpleNavbar
+        settings={settings}
+        themeOverride={themeOverride}
+        cartCount={cartCount}
+        onCartClick={onCartClick}
+        user={user}
+        onAuthClick={onAuthClick}
+        onSearch={onSearch}
+        onLinkClick={onLinkClick}
+      />
     </div>
   );
 }

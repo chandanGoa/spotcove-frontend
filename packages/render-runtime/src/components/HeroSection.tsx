@@ -48,9 +48,9 @@ const alignMap = {
 } as const;
 
 const paddingMap = {
-  small: "py-20",
-  medium: "py-24",
-  large: "py-32",
+  small: "py-12",
+  medium: "py-20",
+  large: "py-28",
 } as const;
 
 const gapMap = {
@@ -60,8 +60,8 @@ const gapMap = {
 } as const;
 
 const subtypeMap = {
-  dark: "bg-[#0B1F3A] text-white",
-  light: "bg-[#0B1F3A] text-white",
+  dark: "bg-foreground text-background",
+  light: "bg-background text-foreground",
 } as const;
 
 function resolvePaddingClass(
@@ -127,49 +127,68 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
   const resolvedAlign = align === "left" ? "left" : "center";
   const resolvedGapClass = resolveGapClass(contentGap);
   const resolvedSubtype = subtype === "dark" ? "dark" : "light";
+  const paddingClass = resolvePaddingClass(paddingY);
+
+  // Layout variant flags
+  const isMediaLeft = subtype === "hero-media-left";
+  const isMediaRight = subtype === "hero-media-right";
+  const isSplit = subtype === "hero-split";
+  const isCentered = subtype === "hero-centered";
+  const hasMedia = isMediaLeft || isMediaRight || isSplit;
+
+  // For media variants use the light subtype coloring by default (or dark if explicitly dark)
+  const colorSubtype =
+    subtype === "dark" ? "dark" :
+    subtype === "light" ? "light" :
+    isMediaLeft || isMediaRight || isCentered ? "light" :
+    isSplit ? "dark" :
+    "light";
+
   const sectionStyle: React.CSSProperties = {
     ...themeOverrideStyles,
     ...style,
   };
 
-  const textElement = (
-    <div className="flex max-w-3xl flex-col gap-6">
+  const textBlock = (
+    <div className={cn("flex flex-col gap-6", isCentered ? "items-center text-center max-w-4xl" : "max-w-3xl")}>
       <h1
-        className="text-6xl font-extrabold tracking-tight text-white"
-        style={{
-          fontFamily: "var(--font-heading, inherit)",
-          lineHeight: "1.1",
-        }}
+        className={cn(
+          "font-extrabold tracking-tight",
+          isCentered ? "text-7xl" : "text-5xl md:text-6xl",
+          colorSubtype === "dark" ? "text-background" : "text-foreground",
+        )}
+        style={{ fontFamily: "var(--font-heading, inherit)", lineHeight: "1.1" }}
       >
         {resolvedTitle}
       </h1>
       <p
-        className="text-lg text-slate-300"
-        style={{
-          fontFamily: "var(--font-body, inherit)",
-          lineHeight: "1.6",
-        }}
+        className={cn(
+          "text-lg",
+          isCentered ? "text-xl" : "",
+          colorSubtype === "dark" ? "text-background/80" : "text-muted-foreground",
+        )}
+        style={{ fontFamily: "var(--font-body, inherit)", lineHeight: "1.6" }}
       >
         {resolvedSubtitle}
       </p>
       <div
         className={cn("flex flex-col gap-3 sm:flex-row", {
-          "justify-start": resolvedAlign === "left",
-          "justify-center": resolvedAlign === "center",
+          "justify-start": resolvedAlign === "left" && !isCentered,
+          "justify-center": resolvedAlign === "center" || isCentered,
         })}
       >
         {resolvedPrimaryCtaLink ? (
           <Button
             asChild
             size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
+            className="bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
           >
             <a href={resolvedPrimaryCtaLink}>{resolvedPrimaryCtaText}</a>
           </Button>
         ) : (
           <Button
             size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
+            className="bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
           >
             {resolvedPrimaryCtaText}
           </Button>
@@ -178,7 +197,11 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           <Button
             size="lg"
             variant="outline"
-            className="border border-white text-white"
+            className={cn(
+              colorSubtype === "dark"
+                ? "border-background/60 text-background hover:bg-background/10"
+                : "border-border text-foreground hover:bg-muted",
+            )}
           >
             {secondaryButtonText}
           </Button>
@@ -187,16 +210,108 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
     </div>
   );
 
-  const imageElement = image && (
-    <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl shadow-lg">
-      <img src={image} alt="Hero" className="h-auto w-full" />
+  const imageBlock = image ? (
+    <div className={cn(
+      "relative overflow-hidden rounded-2xl shadow-lg",
+      isSplit ? "w-full" : "w-full max-w-3xl",
+    )}>
+      <img src={image} alt="Hero" className="h-auto w-full object-cover" />
     </div>
-  );
+  ) : null;
 
+  // --- hero-split: two equal columns ---
+  if (isSplit) {
+    return (
+      <section
+        className={cn(
+          "relative overflow-hidden",
+          subtypeMap["dark"],
+          className,
+        )}
+        style={sectionStyle}
+        {...rest}
+      >
+        <div
+          className="grid min-h-[60vh] grid-cols-1 md:grid-cols-2"
+          style={{ maxWidth: maxWidth ? toCssValue(maxWidth) : undefined }}
+        >
+          <div
+            className={cn(
+              "flex flex-col justify-center p-10 md:p-16",
+              "gap-6 items-start text-left",
+            )}
+          >
+            {textBlock}
+          </div>
+          {imageBlock && (
+            <div className="relative overflow-hidden">
+              <img src={image} alt="Hero" className="h-full w-full object-cover" />
+            </div>
+          )}
+        </div>
+        {children}
+      </section>
+    );
+  }
+
+  // --- hero-media-left / hero-media-right ---
+  if (isMediaLeft || isMediaRight) {
+    return (
+      <section
+        className={cn(
+          "relative overflow-hidden py-16 md:py-24",
+          subtypeMap.light,
+          className,
+        )}
+        style={sectionStyle}
+        {...rest}
+      >
+        <div
+          className={cn(
+            "mx-auto flex flex-col items-center gap-10 px-6 md:flex-row",
+            isMediaRight && "md:flex-row-reverse",
+          )}
+          style={{ maxWidth: maxWidth ? toCssValue(maxWidth) : "80rem" }}
+        >
+          {imageBlock}
+          <div className="flex-1">{textBlock}</div>
+        </div>
+        {children}
+      </section>
+    );
+  }
+
+  // --- hero-centered: full-width centered with large typography ---
+  if (isCentered) {
+    return (
+      <section
+        className={cn(
+          paddingClass,
+          "relative overflow-hidden",
+          subtypeMap.light,
+          className,
+        )}
+        style={sectionStyle}
+        {...rest}
+      >
+        <div
+          className="mx-auto flex flex-col items-center px-6 gap-8"
+          style={{ maxWidth: maxWidth ? toCssValue(maxWidth) : "72rem" }}
+        >
+          {textBlock}
+          {imageBlock}
+        </div>
+        {children}
+      </section>
+    );
+  }
+
+  // --- dark / light (default): standard aligned layout ---
   return (
     <section
       className={cn(
-        "py-20 md:py-24 relative overflow-hidden",
+        paddingClass,
+        "relative overflow-hidden",
         subtypeMap[resolvedSubtype],
         className,
       )}
@@ -210,8 +325,8 @@ export const HeroSection = memo(function HeroSection(props: HeroSectionProps) {
           resolvedGapClass,
         )}
       >
-        {textElement}
-        {imageElement}
+        {textBlock}
+        {imageBlock}
       </div>
       {children}
     </section>
