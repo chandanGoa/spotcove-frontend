@@ -32,9 +32,17 @@ function buildSSRThemeCSS(vendorSlug: string, fallbackSettings: any): string {
   });
 
   const fonts = source.fonts ?? {};
-  if (typeof fonts.heading === "string" && fonts.heading && !fonts.heading.startsWith("var("))
+  if (
+    typeof fonts.heading === "string" &&
+    fonts.heading &&
+    !fonts.heading.startsWith("var(")
+  )
     vars.push(`--font-heading: ${fonts.heading}`);
-  if (typeof fonts.body === "string" && fonts.body && !fonts.body.startsWith("var("))
+  if (
+    typeof fonts.body === "string" &&
+    fonts.body &&
+    !fonts.body.startsWith("var(")
+  )
     vars.push(`--font-body: ${fonts.body}`);
 
   return vars.length ? `:root { ${vars.join("; ")} }` : "";

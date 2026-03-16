@@ -88,9 +88,9 @@ export default function VendorThemeProvider({
       "--space-container": "1.25rem",
       "--space-gap": "1.5rem",
     };
-    const spacingToSet: [string, string][] = Object.entries(spacingTokens).filter(
-      ([token]) => !root.style.getPropertyValue(token),
-    );
+    const spacingToSet: [string, string][] = Object.entries(
+      spacingTokens,
+    ).filter(([token]) => !root.style.getPropertyValue(token));
 
     // Pre-check which font links already exist before any DOM mutations
     const isBare = (v: string) =>
@@ -127,7 +127,9 @@ export default function VendorThemeProvider({
 
     // Read font-face element and existing font links (all reads before writes)
     const fontFaceElId = `vendor-font-faces-${vendorSlug}`;
-    fontFaceEl = document.getElementById(fontFaceElId) as HTMLStyleElement | null;
+    fontFaceEl = document.getElementById(
+      fontFaceElId,
+    ) as HTMLStyleElement | null;
     const missingFontUrls = allFontUrls.filter((url) => {
       const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
       return !document.getElementById(id);
@@ -150,7 +152,8 @@ export default function VendorThemeProvider({
       root.style.setProperty(token, fallback);
     });
 
-    if (resolvedHeading) root.style.setProperty("--font-heading", resolvedHeading);
+    if (resolvedHeading)
+      root.style.setProperty("--font-heading", resolvedHeading);
     if (resolvedBody) root.style.setProperty("--font-body", resolvedBody);
 
     if (Array.isArray(fontFaces) && fontFaces.length > 0) {
