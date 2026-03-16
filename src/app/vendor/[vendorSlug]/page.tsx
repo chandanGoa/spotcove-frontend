@@ -58,10 +58,14 @@ export default async function VendorRootPage({ params }: VendorRootPageProps) {
   }
 
   const fontLinks = buildFontLinks(initialData?.themeJSON);
-  const ssrCss = buildSSRCss(initialData?.themeJSON);
+  const themeScript = buildThemeScript(initialData?.themeJSON);
+  const metricOverridesCss = buildMetricOverrides(initialData?.themeJSON);
 
   return (
     <>
+      {metricOverridesCss && (
+        <style dangerouslySetInnerHTML={{ __html: metricOverridesCss }} />
+      )}
       {fontLinks.length > 0 && (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -75,7 +79,10 @@ export default async function VendorRootPage({ params }: VendorRootPageProps) {
       {fontLinks.map((url) => (
         <link key={url} rel="stylesheet" href={url} />
       ))}
-      {ssrCss && <style dangerouslySetInnerHTML={{ __html: ssrCss }} />}
+      {themeScript && (
+        // eslint-disable-next-line @next/next/no-before-interactive-script-component
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      )}
       <VendorKeywordClient
         vendorSlug={vendorSlug}
         keyword={keyword}
@@ -113,14 +120,39 @@ function buildFontCssVars(themeJson: any): string {
   if (!themeJson?.fonts) return "";
   const { heading, body } = themeJson.fonts;
   const vars: string[] = [];
-  // Skip var(...) references — the underlying CSS variable is not defined in this app
   if (heading && !heading.startsWith("var("))
     vars.push(
       `--font-heading: ${isBareFont(heading) ? toFontStack(heading) : heading}`,
     );
   if (body && !body.startsWith("var("))
     vars.push(`--font-body: ${isBareFont(body) ? toFontStack(body) : body}`);
-  return vars.length ? vars.join("; ") : "";
+  return vars.join("; ");
+}
+
+/** Build an IIFE that sets CSS custom properties synchronously before first paint */
+function buildThemeScript(themeJson: any): string {
+  const setters: string[] = [];
+
+  Object.entries(themeJson?.colors ?? {}).forEach(([key, value]) => {
+    if (typeof value === "string" && value) {
+      setters.push(
+        `r.setProperty('--${key}','${(value as string).replace(/'/g, "\\'")}')`,
+      );
+    }
+  });
+
+  const { heading, body } = themeJson?.fonts ?? {};
+  if (heading && !heading.startsWith("var(")) {
+    const v = isBareFont(heading) ? toFontStack(heading) : heading;
+    setters.push(`r.setProperty('--font-heading','${v.replace(/'/g, "\\'")}') `);
+  }
+  if (body && !body.startsWith("var(")) {
+    const v = isBareFont(body) ? toFontStack(body) : body;
+    setters.push(`r.setProperty('--font-body','${v.replace(/'/g, "\\'")}') `);
+  }
+
+  if (!setters.length) return "";
+  return `(function(){try{var r=document.documentElement.style;${setters.join(";")}}catch(e){}})();`;
 }
 
 function buildColorCssVars(themeJson: any): string {
@@ -167,10 +199,5 @@ function buildMetricOverrides(themeJson: any): string {
 }
 
 function buildSSRCss(themeJson: any): string {
-  const vars = [buildColorCssVars(themeJson), buildFontCssVars(themeJson)]
-    .filter(Boolean)
-    .join("; ");
-  const metricOverrides = buildMetricOverrides(themeJson);
-  const rootBlock = vars ? `:root { ${vars} }` : "";
-  return [metricOverrides, rootBlock].filter(Boolean).join("\n");
+  return buildMetricOverrides(themeJson);
 }

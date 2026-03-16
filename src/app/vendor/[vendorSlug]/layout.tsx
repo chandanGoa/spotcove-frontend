@@ -13,9 +13,17 @@ type Props = {
   params: { vendorSlug: string };
 };
 
-function buildSSRThemeCSS(vendorSlug: string, fallbackSettings: any): string {
-  // Prefer the actual theme JSON from the vendor registry (has real colors/fonts)
-  // over vendors.json which only stores overrides (usually empty).
+/**
+ * Build an inline script (not a <style>) that sets CSS custom properties
+ * synchronously before the browser renders any content.
+ *
+ * A <style> in <body> only affects elements that come AFTER it; the browser
+ * may already have rendered a frame using globals.css defaults by the time it
+ * reaches a body <style>.  A synchronous inline <script> runs immediately when
+ * the HTML parser hits it – before any paint – so the vars are correct on the
+ * very first frame.
+ */
+function buildThemeScript(vendorSlug: string, fallbackSettings: any): string {
   const registryEntry = VENDOR_REGISTRY[vendorSlug];
   const themeJson = registryEntry
     ? (Object.values(registryEntry)[0] as any)?.themeJson
@@ -24,11 +32,14 @@ function buildSSRThemeCSS(vendorSlug: string, fallbackSettings: any): string {
   const source = themeJson ?? fallbackSettings;
   if (!source) return "";
 
-  const vars: string[] = [];
+  const setters: string[] = [];
 
   const colors = source.colors ?? {};
   Object.entries(colors).forEach(([key, value]) => {
-    if (typeof value === "string" && value) vars.push(`--${key}: ${value}`);
+    if (typeof value === "string" && value) {
+      const safe = value.replace(/'/g, "\\'");
+      setters.push(`r.setProperty('--${key}','${safe}')`);
+    }
   });
 
   const fonts = source.fonts ?? {};
@@ -36,16 +47,23 @@ function buildSSRThemeCSS(vendorSlug: string, fallbackSettings: any): string {
     typeof fonts.heading === "string" &&
     fonts.heading &&
     !fonts.heading.startsWith("var(")
-  )
-    vars.push(`--font-heading: ${fonts.heading}`);
+  ) {
+    const safe = fonts.heading.replace(/'/g, "\\'");
+    setters.push(`r.setProperty('--font-heading','${safe}')`);
+  }
   if (
     typeof fonts.body === "string" &&
     fonts.body &&
     !fonts.body.startsWith("var(")
-  )
-    vars.push(`--font-body: ${fonts.body}`);
+  ) {
+    const safe = fonts.body.replace(/'/g, "\\'");
+    setters.push(`r.setProperty('--font-body','${safe}')`);
+  }
 
-  return vars.length ? `:root { ${vars.join("; ")} }` : "";
+  if (!setters.length) return "";
+
+  // Wrapped in try/catch so any edge-case error never breaks the page
+  return `(function(){try{var r=document.documentElement.style;${setters.join(";")}}catch(e){}})();`;
 }
 
 async function VendorLayout({ children, params }: Props) {
@@ -58,11 +76,14 @@ async function VendorLayout({ children, params }: Props) {
   }
 
   const fallbackSettings = vendor.custom_theme_settings || {};
-  const ssrCSS = buildSSRThemeCSS(params.vendorSlug, fallbackSettings);
+  const themeScript = buildThemeScript(params.vendorSlug, fallbackSettings);
 
   return (
     <>
-      {ssrCSS && <style dangerouslySetInnerHTML={{ __html: ssrCSS }} />}
+      {themeScript && (
+        // eslint-disable-next-line @next/next/no-before-interactive-script-component
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      )}
       <VendorThemeWrapper
         themeSettings={fallbackSettings}
         vendorSlug={params.vendorSlug}
