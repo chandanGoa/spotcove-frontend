@@ -161,6 +161,12 @@ export default async function VendorKeywordPage({
 
   return (
     <>
+      {fontLinks.length > 0 && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        </>
+      )}
       {fontLinks.map((url) => (
         <link key={url} rel="stylesheet" href={url} />
       ))}
@@ -183,13 +189,16 @@ function toFontStack(name: string) {
   return `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
 }
 function toGoogleUrl(name: string) {
-  return `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
+  return `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=block`;
 }
 
 function buildFontLinks(themeJson: any): string[] {
   if (!themeJson?.fonts) return [];
   const { heading, body, fontUrls } = themeJson.fonts;
-  const urls: string[] = Array.isArray(fontUrls) ? [...fontUrls] : [];
+  // Replace display=swap with display=block to prevent FOUT
+  const urls: string[] = Array.isArray(fontUrls)
+    ? fontUrls.map((u: string) => u.replace(/display=swap/g, "display=block"))
+    : [];
   if (heading && isBareFont(heading))
     urls.push(toGoogleUrl(heading.replace(/['"]/g, "").trim()));
   if (body && isBareFont(body) && body !== heading)
@@ -201,11 +210,12 @@ function buildFontCssVars(themeJson: any): string {
   if (!themeJson?.fonts) return "";
   const { heading, body } = themeJson.fonts;
   const vars: string[] = [];
-  if (heading)
+  // Skip var(...) references — the underlying CSS variable is not defined in this app
+  if (heading && !heading.startsWith("var("))
     vars.push(
       `--font-heading: ${isBareFont(heading) ? toFontStack(heading) : heading}`,
     );
-  if (body)
+  if (body && !body.startsWith("var("))
     vars.push(
       `--font-body: ${isBareFont(body) ? toFontStack(body) : body}`,
     );
