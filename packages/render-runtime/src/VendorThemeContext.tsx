@@ -15,7 +15,12 @@
  */
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
+
+// useLayoutEffect fires synchronously before paint → no FOUC on client navigation.
+// On the server useLayoutEffect doesn't exist; fall back to useEffect (no-op on server).
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export type ThemeSettings = {
   colors?: {
@@ -76,8 +81,12 @@ export default function VendorThemeProvider({
   const currentThemeSettings = themeSettings;
   const [currentLayout] = useState<LayoutStructure | null>(layout);
 
-  // Apply theme CSS variables and load fonts whenever theme changes
-  useEffect(() => {
+  // Apply theme CSS variables and load fonts whenever theme changes.
+  // useIsomorphicLayoutEffect (→ useLayoutEffect in the browser) fires synchronously
+  // after DOM commit but BEFORE the browser paints, so CSS custom properties are
+  // always correct on the first painted frame — even on client-side navigations
+  // where the inline SSR <script> does not re-run.
+  useIsomorphicLayoutEffect(() => {
     const root = document.documentElement;
 
     // --- Batch all DOM READS before any DOM WRITES to avoid forced reflow ---
@@ -95,8 +104,32 @@ export default function VendorThemeProvider({
     // Pre-check which font links already exist before any DOM mutations
     const isBare = (v: string) =>
       typeof v === "string" && !v.includes(",") && !v.includes("(");
-    const toStack = (name: string) =>
-      `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
+
+    // Metric-override fallback font names (must match @font-face definitions in page SSR <style>)
+    const METRIC_FALLBACK: Record<string, string> = {
+      inter: "Inter Fallback",
+      "playfair display": "Playfair Display Fallback",
+      nunito: "Nunito Fallback",
+      poppins: "Poppins Fallback",
+    };
+
+    /** Insert the metric-override variant as second item in a font-family stack. */
+    const withFallback = (fontFamily: string): string => {
+      const parts = fontFamily.split(",");
+      if (!parts.length) return fontFamily;
+      const primaryFont = parts[0].trim().replace(/['"]/g, "");
+      const fb = METRIC_FALLBACK[primaryFont.toLowerCase()];
+      if (!fb || fontFamily.includes(fb)) return fontFamily;
+      return [parts[0], ` '${fb}'`, ...parts.slice(1)].join(",");
+    };
+
+    const toStack = (name: string) => {
+      const clean = name.replace(/'/g, "").trim();
+      const fb = METRIC_FALLBACK[clean.toLowerCase()];
+      const fbPart = fb ? `, '${fb}'` : "";
+      return `'${clean}'${fbPart}, system-ui, -apple-system, sans-serif`;
+    };
+
     const toGoogleUrl = (name: string) =>
       `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
 
@@ -111,8 +144,10 @@ export default function VendorThemeProvider({
       const { heading, body, fontUrls } = fonts;
       fontFaces = fonts.fontFaces;
 
-      resolvedHeading = heading && isBare(heading) ? toStack(heading) : heading;
-      resolvedBody = body && isBare(body) ? toStack(body) : body;
+      resolvedHeading =
+        heading && isBare(heading) ? toStack(heading) : withFallback(heading);
+      resolvedBody =
+        body && isBare(body) ? toStack(body) : withFallback(body);
 
       allFontUrls = Array.isArray(fontUrls) ? [...fontUrls] : [];
       if (heading && isBare(heading)) {
@@ -174,8 +209,6 @@ export default function VendorThemeProvider({
       document.head.appendChild(link);
     });
   }, [currentThemeSettings, vendorSlug]);
-
-  // Helper function to convert hex to HSL
   function hexToHSL(hex: string): string {
     hex = hex.replace("#", "");
     const r = parseInt(hex.substring(0, 2), 16) / 255;

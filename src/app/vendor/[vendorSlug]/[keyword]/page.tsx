@@ -196,8 +196,30 @@ export default async function VendorKeywordPage({
 function isBareFont(v: string) {
   return typeof v === "string" && !v.includes(",") && !v.includes("(");
 }
+
+// Maps bare font name (lowercase) → the matching @font-face fallback name defined in FONT_METRIC_OVERRIDES
+const METRIC_FALLBACK_NAMES: Record<string, string> = {
+  inter: "Inter Fallback",
+  "playfair display": "Playfair Display Fallback",
+  nunito: "Nunito Fallback",
+  poppins: "Poppins Fallback",
+};
+
+/** Insert the metric-override fallback font as the second item in a CSS font-family stack. */
+function withMetricFallback(fontFamily: string): string {
+  const parts = fontFamily.split(",");
+  if (!parts.length) return fontFamily;
+  const primaryFont = parts[0].trim().replace(/['"]/g, "");
+  const fallback = METRIC_FALLBACK_NAMES[primaryFont.toLowerCase()];
+  if (!fallback || fontFamily.includes(fallback)) return fontFamily;
+  return [parts[0], ` '${fallback}'`, ...parts.slice(1)].join(",");
+}
+
 function toFontStack(name: string) {
-  return `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
+  const clean = name.replace(/'/g, "").trim();
+  const fallback = METRIC_FALLBACK_NAMES[clean.toLowerCase()];
+  const fallbackPart = fallback ? `, '${fallback}'` : "";
+  return `'${clean}'${fallbackPart}, system-ui, -apple-system, sans-serif`;
 }
 function toGoogleUrl(name: string) {
   return `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
@@ -236,17 +258,19 @@ function buildThemeScript(themeJson: any): string {
 
   Object.entries(themeJson?.colors ?? {}).forEach(([key, value]) => {
     if (typeof value === "string" && value) {
-      setters.push(`r.setProperty('--${key}','${(value as string).replace(/'/g, "\\'")}')`);
+      setters.push(
+        `r.setProperty('--${key}','${(value as string).replace(/'/g, "\\'")}')`,
+      );
     }
   });
 
   const { heading, body } = themeJson?.fonts ?? {};
   if (heading && !heading.startsWith("var(")) {
-    const v = isBareFont(heading) ? toFontStack(heading) : heading;
+    const v = isBareFont(heading) ? toFontStack(heading) : withMetricFallback(heading);
     setters.push(`r.setProperty('--font-heading','${v.replace(/'/g, "\\'")}')`);
   }
   if (body && !body.startsWith("var(")) {
-    const v = isBareFont(body) ? toFontStack(body) : body;
+    const v = isBareFont(body) ? toFontStack(body) : withMetricFallback(body);
     setters.push(`r.setProperty('--font-body','${v.replace(/'/g, "\\'")}')`);
   }
 
