@@ -33,6 +33,7 @@ function buildThemeScript(vendorSlug: string, fallbackSettings: any): string {
   if (!source) return "";
 
   const setters: string[] = [];
+  const fontUrls: string[] = [];
 
   const colors = source.colors ?? {};
   Object.entries(colors).forEach(([key, value]) => {
@@ -60,10 +61,24 @@ function buildThemeScript(vendorSlug: string, fallbackSettings: any): string {
     setters.push(`r.setProperty('--font-body','${safe}')`);
   }
 
+  if (Array.isArray(fonts.fontUrls)) {
+    fonts.fontUrls.forEach((url: unknown) => {
+      if (typeof url === "string" && url.trim().length > 0) {
+        const normalized = /[?&]display=/.test(url)
+          ? url.replace(
+              /([?&]display=)(swap|fallback|optional|auto|block)/,
+              "$1block",
+            )
+          : `${url}${url.includes("?") ? "&" : "?"}display=block`;
+        fontUrls.push(normalized);
+      }
+    });
+  }
+
   if (!setters.length) return "";
 
   // Wrapped in try/catch so any edge-case error never breaks the page
-  return `(function(){try{var r=document.documentElement.style;${setters.join(";")}}catch(e){}})();`;
+  return `(function(){try{var d=document.documentElement;var r=d.style;${setters.join(";")};var fontUrls=${JSON.stringify(fontUrls)};if(fontUrls&&fontUrls.length){for(var i=0;i<fontUrls.length;i++){var href=fontUrls[i];if(!document.querySelector('link[data-vendor-font="'+href+'"]')){var l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute('data-vendor-font',href);document.head.appendChild(l);}}}var release=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){d.removeAttribute('data-vendor-theme-pending');});});};if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(function(resolve){setTimeout(resolve,2500);})]).then(release);}else{release();}}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_e){}}})();`;
 }
 
 async function VendorLayout({ children, params }: Props) {
