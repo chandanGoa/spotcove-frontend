@@ -54,9 +54,7 @@ async function VendorLayout({ children, params }: Props) {
 
   return (
     <>
-      {ssrCSS && (
-        <style dangerouslySetInnerHTML={{ __html: ssrCSS }} />
-      )}
+      {ssrCSS && <style dangerouslySetInnerHTML={{ __html: ssrCSS }} />}
       <VendorThemeWrapper
         themeSettings={themeSettings}
         vendorSlug={params.vendorSlug}

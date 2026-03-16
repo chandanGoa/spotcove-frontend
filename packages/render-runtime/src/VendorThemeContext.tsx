@@ -1,15 +1,15 @@
 /**
  * VendorThemeContext - Render Runtime Version
- * 
+ *
  * ⚠️ FROZEN FILE - DO NOT MODIFY WITHOUT CONTRACT CHANGE ⚠️
  * See: RENDER_RUNTIME_CONTRACT.md
- * 
+ *
  * STRICT RULES:
  * - NO API calls
  * - NO data fetching
  * - NO database access
  * - ONLY accepts theme and layout data as props
- * 
+ *
  * This file successfully applied theme in __render_test__/
  * Any changes MUST preserve this capability
  */
@@ -48,7 +48,7 @@ type VendorThemeContextType = {
 };
 
 const VendorThemeContext = createContext<VendorThemeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function useVendorTheme() {
@@ -103,7 +103,8 @@ export default function VendorThemeProvider({
     });
 
     if (currentThemeSettings?.fonts) {
-      const { heading, body, fontUrls, fontFaces } = currentThemeSettings.fonts as any;
+      const { heading, body, fontUrls, fontFaces } =
+        currentThemeSettings.fonts as any;
 
       if (heading) root.style.setProperty("--font-heading", heading);
       if (body) root.style.setProperty("--font-body", body);
