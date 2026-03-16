@@ -13,112 +13,104 @@ type Props = {
   params: { vendorSlug: string };
 };
 
+// ─── Server-side helpers ────────────────────────────────────────────────────
+
+function hexToHSL(hex: string): string {
+  const clean = hex.replace("#", "");
+  if (clean.length !== 6) return hex;
+  const r = parseInt(clean.substring(0, 2), 16) / 255;
+  const g = parseInt(clean.substring(2, 4), 16) / 255;
+  const b = parseInt(clean.substring(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
+function normalizeFontUrl(url: string): string {
+  if (!url) return url;
+  if (/[?&]display=/.test(url))
+    return url.replace(/([?&]display=)(swap|fallback|optional|auto|block)/, "$1block");
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}display=block`;
+}
+
+/** Resolve the best theme source: registry entry takes priority over vendor fallback. */
+function resolveThemeSource(vendorSlug: string, fallback: any): any {
+  const entry = VENDOR_REGISTRY[vendorSlug];
+  const themeJson = entry ? (Object.values(entry)[0] as any)?.themeJson : null;
+  return themeJson ?? fallback ?? {};
+}
+
+/** Return font stylesheet URLs from the theme source, normalised to display=block. */
+function resolveFontUrls(source: any): string[] {
+  const rawUrls: unknown[] = source?.fonts?.fontUrls ?? [];
+  return (rawUrls as string[])
+    .filter((u) => typeof u === "string" && u.trim().length > 0)
+    .map(normalizeFontUrl);
+}
+
 /**
- * Build an inline script (not a <style>) that sets CSS custom properties
- * synchronously before the browser renders any content.
+ * Build a tiny synchronous inline script that:
+ *  1. Sets CSS custom properties before the first paint.
+ *  2. Releases the visibility gate AFTER document.fonts.ready resolves.
  *
- * A <style> in <body> only affects elements that come AFTER it; the browser
- * may already have rendered a frame using globals.css defaults by the time it
- * reaches a body <style>.  A synchronous inline <script> runs immediately when
- * the HTML parser hits it – before any paint – so the vars are correct on the
- * very first frame.
+ * Font <link> elements are rendered as real HTML (see VendorLayout below) so
+ * the browser includes them in the document.fonts.ready cycle.  We must NOT
+ * inject font links here via JS because document.fonts.ready may have already
+ * resolved by the time the dynamic link is processed, causing the gate to
+ * release before fonts are loaded.
  */
-function buildThemeScript(vendorSlug: string, fallbackSettings: any): string {
-  const registryEntry = VENDOR_REGISTRY[vendorSlug];
-  const themeJson = registryEntry
-    ? (Object.values(registryEntry)[0] as any)?.themeJson
-    : null;
-
-  const source = themeJson ?? fallbackSettings;
-  if (!source) return "";
-
+function buildThemeScript(source: any): string {
   const setters: string[] = [];
-  const fontUrls: string[] = [];
 
-  const hexToHSL = (hex: string): string => {
-    const clean = hex.replace("#", "");
-    if (clean.length !== 6) return hex;
-
-    const r = parseInt(clean.substring(0, 2), 16) / 255;
-    const g = parseInt(clean.substring(2, 4), 16) / 255;
-    const b = parseInt(clean.substring(4, 6), 16) / 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0;
-    let s = 0;
-    const l = (max + min) / 2;
-
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r:
-          h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-          break;
-        case g:
-          h = ((b - r) / d + 2) / 6;
-          break;
-        case b:
-          h = ((r - g) / d + 4) / 6;
-          break;
-      }
-    }
-
-    return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
-  };
-
-  const normalizeFontUrl = (url: string): string => {
-    if (!url) return url;
-    const sep = url.includes("?") ? "&" : "?";
-    if (/[?&]display=/.test(url)) {
-      return url.replace(
-        /([?&]display=)(swap|fallback|optional|auto|block)/,
-        "$1block",
-      );
-    }
-    return `${url}${sep}display=block`;
-  };
-
-  const colors = source.colors ?? {};
+  const colors = source?.colors ?? {};
   Object.entries(colors).forEach(([key, value]) => {
     if (typeof value === "string" && value) {
-      const normalized = value.startsWith("#") ? hexToHSL(value) : value;
-      const safe = normalized.replace(/'/g, "\\'");
-      setters.push(`r.setProperty('--${key}','${safe}')`);
+      const v = value.startsWith("#") ? hexToHSL(value) : value;
+      setters.push(`r.setProperty('--${key}','${v.replace(/'/g, "\\'")}')`);
     }
   });
 
-  const fonts = source.fonts ?? {};
-  if (
-    typeof fonts.heading === "string" &&
-    fonts.heading &&
-    !fonts.heading.startsWith("var(")
-  ) {
-    const safe = fonts.heading.replace(/'/g, "\\'");
-    setters.push(`r.setProperty('--font-heading','${safe}')`);
-  }
-  if (
-    typeof fonts.body === "string" &&
-    fonts.body &&
-    !fonts.body.startsWith("var(")
-  ) {
-    const safe = fonts.body.replace(/'/g, "\\'");
-    setters.push(`r.setProperty('--font-body','${safe}')`);
-  }
+  const fonts = source?.fonts ?? {};
+  if (typeof fonts.heading === "string" && fonts.heading && !fonts.heading.startsWith("var("))
+    setters.push(`r.setProperty('--font-heading','${fonts.heading.replace(/'/g, "\\'")}')`);
+  if (typeof fonts.body === "string" && fonts.body && !fonts.body.startsWith("var("))
+    setters.push(`r.setProperty('--font-body','${fonts.body.replace(/'/g, "\\'")}')`);
 
-  if (Array.isArray(fonts.fontUrls)) {
-    fonts.fontUrls.forEach((url: unknown) => {
-      if (typeof url === "string" && url.trim().length > 0) {
-        fontUrls.push(normalizeFontUrl(url));
-      }
-    });
-  }
+  const varPart = setters.length
+    ? `var d=document.documentElement;var r=d.style;${setters.join(";")};`
+    : `var d=document.documentElement;`;
 
-  if (!setters.length) return "";
+  // release(): mark that server vars are applied (data-vvr), then reveal body
+  // waitAndRelease(): call release() only after document.fonts.ready
+  // We first wait for every Google Fonts <link> to have its .sheet populated
+  // (i.e. the @font-face rules are parsed) before we touch document.fonts.ready.
+  // Without this, document.fonts.ready resolves immediately on hard refresh
+  // because the browser hasn't seen any @font-face declarations yet.
+  const gateRelease =
+    `var release=function(){d.setAttribute('data-vvr','1');requestAnimationFrame(function(){requestAnimationFrame(function(){d.removeAttribute('data-vendor-theme-pending');});});};` +
+    `var waitAndRelease=function(){if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(function(rs){setTimeout(rs,2500);})]).then(release);}else{release();}};` +
+    `var flinks=[].slice.call(document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis"]'));` +
+    `if(!flinks.length){waitAndRelease();}` +
+    `else{var pending=flinks.length;var onDone=function(){if(--pending<=0)waitAndRelease();};` +
+    `for(var i=0;i<flinks.length;i++){var fl=flinks[i];if(fl.sheet){onDone();}` +
+    `else{fl.addEventListener('load',onDone,{once:true});fl.addEventListener('error',onDone,{once:true});}}}`;
 
-  return `(function(){try{var d=document.documentElement;var r=d.style;${setters.join(";")};var fontUrls=${JSON.stringify(fontUrls)};if(fontUrls&&fontUrls.length){for(var i=0;i<fontUrls.length;i++){var href=fontUrls[i];if(!document.querySelector('link[data-vendor-font="'+href+'"]')){var l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute('data-vendor-font',href);document.head.appendChild(l);}}}var release=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){d.removeAttribute('data-vendor-theme-pending');});});};if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(function(resolve){setTimeout(resolve,2500);})]).then(release);}else{release();}}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_e){}}})();`;
+  return `(function(){try{${varPart}${gateRelease}}catch(e){try{document.documentElement.removeAttribute('data-vendor-theme-pending');}catch(_){}}})()`; 
 }
+
+// ─── Layout component ────────────────────────────────────────────────────────
 
 async function VendorLayout({ children, params }: Props) {
   const vendor = vendorsData.find(
@@ -130,16 +122,25 @@ async function VendorLayout({ children, params }: Props) {
   }
 
   const fallbackSettings = vendor.custom_theme_settings || {};
-  const themeScript = buildThemeScript(params.vendorSlug, fallbackSettings);
+  const source = resolveThemeSource(params.vendorSlug, fallbackSettings);
+  const fontUrls = resolveFontUrls(source);
+  const themeScript = buildThemeScript(source);
 
   return (
     <>
-      {themeScript && (
-        // eslint-disable-next-line @next/next/no-before-interactive-script-component
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      )}
+      {/*
+       * Font stylesheets rendered as real HTML elements.
+       * Next.js hoists <link precedence="…"> to <head>, so the browser
+       * discovers these fonts during the initial parse and document.fonts.ready
+       * correctly waits for them before the gate releases.
+       */}
+      {fontUrls.map((url) => (
+        <link key={url} rel="stylesheet" href={url} precedence="default" />
+      ))}
+      {/* Theme vars + gate-release script — runs synchronously in <body> */}
+      <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       <VendorThemeWrapper
-        themeSettings={fallbackSettings}
+        themeSettings={source}
         vendorSlug={params.vendorSlug}
       >
         {children}
