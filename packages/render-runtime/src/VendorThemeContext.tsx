@@ -106,8 +106,32 @@ export default function VendorThemeProvider({
       const { heading, body, fontUrls, fontFaces } =
         currentThemeSettings.fonts as any;
 
-      if (heading) root.style.setProperty("--font-heading", heading);
-      if (body) root.style.setProperty("--font-body", body);
+      // If font value is a bare name (e.g. "Nunito"), convert to a proper
+      // CSS font-family stack and automatically load from Google Fonts.
+      const isBare = (v: string) =>
+        typeof v === "string" && !v.includes(",") && !v.includes("(");
+      const toStack = (name: string) =>
+        `'${name.replace(/'/g, "")}', system-ui, -apple-system, sans-serif`;
+      const toGoogleUrl = (name: string) =>
+        `https://fonts.googleapis.com/css2?family=${name.trim().replace(/ /g, "+")}:wght@400;500;600;700;800&display=swap`;
+
+      const resolvedHeading =
+        heading && isBare(heading) ? toStack(heading) : heading;
+      const resolvedBody = body && isBare(body) ? toStack(body) : body;
+
+      // Collect Google Font URLs — from fontUrls prop + auto-generated for bare names
+      const allFontUrls: string[] = Array.isArray(fontUrls) ? [...fontUrls] : [];
+      if (heading && isBare(heading)) {
+        const u = toGoogleUrl(heading.replace(/['"]/g, "").trim());
+        if (!allFontUrls.includes(u)) allFontUrls.push(u);
+      }
+      if (body && isBare(body) && body !== heading) {
+        const u = toGoogleUrl(body.replace(/['"]/g, "").trim());
+        if (!allFontUrls.includes(u)) allFontUrls.push(u);
+      }
+
+      if (resolvedHeading) root.style.setProperty("--font-heading", resolvedHeading);
+      if (resolvedBody) root.style.setProperty("--font-body", resolvedBody);
 
       // Inject @font-face declarations (highest priority)
       if (Array.isArray(fontFaces) && fontFaces.length > 0) {
@@ -122,8 +146,8 @@ export default function VendorThemeProvider({
       }
 
       // Inject Google Font <link> tags
-      if (Array.isArray(fontUrls) && fontUrls.length > 0) {
-        fontUrls.forEach((url: string) => {
+      if (allFontUrls.length > 0) {
+        allFontUrls.forEach((url: string) => {
           const id = `vendor-font-${btoa(url).replace(/[^a-zA-Z0-9]/g, "")}`;
           if (!document.getElementById(id)) {
             const link = document.createElement("link");
