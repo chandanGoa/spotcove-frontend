@@ -8,6 +8,20 @@
       },
       "components": [
         {
+          "id": "nav-fashion",
+          "type": "navigation",
+          "settings": {
+            "brandName": "Fashion Store",
+            "showSearch": false,
+            "links": [
+              { "label": "Home", "href": "/" },
+              { "label": "Products", "href": "/products" },
+              { "label": "About", "href": "/about" },
+              { "label": "Contact", "href": "/contact" }
+            ]
+          }
+        },
+        {
           "id": "hero-fashion",
           "type": "hero",
           "settings": {
@@ -45,6 +59,28 @@
             "title": "Join Our Newsletter",
             "subtitle": "Get exclusive deals and updates",
             "align": "center"
+          }
+        },
+        {
+          "id": "footer-fashion",
+          "type": "footer",
+          "settings": {
+            "brandName": "Fashion Store",
+            "links": [
+              {
+                "title": "Shop",
+                "items": [
+                  { "title": "Products", "href": "/products" }
+                ]
+              },
+              {
+                "title": "Info",
+                "items": [
+                  { "title": "About", "href": "/about" },
+                  { "title": "Contact", "href": "/contact" }
+                ]
+              }
+            ]
           }
         }
       ]

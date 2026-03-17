@@ -8,6 +8,20 @@
       },
       "components": [
         {
+          "id": "nav-marketplace",
+          "type": "navigation",
+          "settings": {
+            "brandName": "Marketplace",
+            "showSearch": false,
+            "links": [
+              { "label": "Home", "href": "/" },
+              { "label": "Products", "href": "/products" },
+              { "label": "About", "href": "/about" },
+              { "label": "Contact", "href": "/contact" }
+            ]
+          }
+        },
+        {
           "id": "hero-marketplace",
           "type": "hero",
           "settings": {
@@ -36,6 +50,28 @@
             "columns": 3,
             "align": "center",
             "paddingY": 50
+          }
+        },
+        {
+          "id": "footer-marketplace",
+          "type": "footer",
+          "settings": {
+            "brandName": "Marketplace",
+            "links": [
+              {
+                "title": "Shop",
+                "items": [
+                  { "title": "Products", "href": "/products" }
+                ]
+              },
+              {
+                "title": "Info",
+                "items": [
+                  { "title": "About", "href": "/about" },
+                  { "title": "Contact", "href": "/contact" }
+                ]
+              }
+            ]
           }
         }
       ]

@@ -8,6 +8,20 @@
       },
       "components": [
         {
+          "id": "nav-minimal",
+          "type": "navigation",
+          "settings": {
+            "brandName": "Store",
+            "showSearch": false,
+            "links": [
+              { "label": "Home", "href": "/" },
+              { "label": "Products", "href": "/products" },
+              { "label": "About", "href": "/about" },
+              { "label": "Contact", "href": "/contact" }
+            ]
+          }
+        },
+        {
           "id": "hero-minimal",
           "type": "hero",
           "settings": {
@@ -35,6 +49,28 @@
             "title": "Stay Updated",
             "subtitle": "Subscribe to our newsletter",
             "align": "center"
+          }
+        },
+        {
+          "id": "footer-minimal",
+          "type": "footer",
+          "settings": {
+            "brandName": "Store",
+            "links": [
+              {
+                "title": "Shop",
+                "items": [
+                  { "title": "Products", "href": "/products" }
+                ]
+              },
+              {
+                "title": "Info",
+                "items": [
+                  { "title": "About", "href": "/about" },
+                  { "title": "Contact", "href": "/contact" }
+                ]
+              }
+            ]
           }
         }
       ]

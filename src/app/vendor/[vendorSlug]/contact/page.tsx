@@ -2,7 +2,8 @@
  * Vendor Contact Page (frontend app)
  */
 
-import VendorThemeWrapper from "../VendorThemeWrapper";
+import VendorKeywordClient from "../[keyword]/VendorKeywordClient";
+import { buildChromeLayout } from "../layout-chrome";
 
 interface Props {
   params: { vendorSlug: string };
@@ -35,35 +36,34 @@ export default async function VendorContactPage({ params }: Props) {
 
   const themeSettings = data?.themeJSON ?? {};
   const contentJSON = data?.contentJSON ?? {};
+  const layoutJSON = data?.layoutJSON ?? null;
   const vendorName = data?.vendor?.name ?? vendorSlug;
 
+  const pageLayout = buildChromeLayout(layoutJSON, vendorSlug, {
+    id: "contact-content",
+    type: "contact",
+    settings: {
+      heading: contentJSON.heading ?? `Contact ${vendorName}`,
+      body:
+        contentJSON.body ??
+        "You can update this text anytime from Vendor Admin > Content.",
+      email: contentJSON.email,
+      phone: contentJSON.phone,
+      className: "container mx-auto px-4 py-16 max-w-4xl",
+    },
+  });
+
   return (
-    <VendorThemeWrapper themeSettings={themeSettings} vendorSlug={vendorSlug}>
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="container mx-auto px-4 py-16 max-w-4xl">
-          <h1 className="text-4xl font-bold mb-6">
-            {contentJSON.heading ?? `Contact ${vendorName}`}
-          </h1>
-          <p className="text-muted-foreground text-lg mb-8">
-            {contentJSON.body ??
-              "You can update this text anytime from Vendor Admin > Content."}
-          </p>
-          {contentJSON.email && (
-            <p className="text-base">
-              Email:{" "}
-              <a
-                href={`mailto:${contentJSON.email}`}
-                className="text-primary hover:underline"
-              >
-                {contentJSON.email}
-              </a>
-            </p>
-          )}
-          {contentJSON.phone && (
-            <p className="text-base mt-2">Phone: {contentJSON.phone}</p>
-          )}
-        </div>
-      </div>
-    </VendorThemeWrapper>
+    <VendorKeywordClient
+      vendorSlug={vendorSlug}
+      keyword="contact"
+      initialData={{
+        layoutJSON: pageLayout,
+        themeJSON: themeSettings,
+        contentJSON: {},
+        products: data?.products ?? [],
+        collections: data?.collections ?? [],
+      }}
+    />
   );
 }
