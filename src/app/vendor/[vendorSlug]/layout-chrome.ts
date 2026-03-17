@@ -1,3 +1,5 @@
+import { VENDOR_DOMAIN_MAP } from "@/data/vendor-domains";
+
 type NavLink = { label: string; href: string };
 type FooterSection = {
   title: string;
@@ -65,9 +67,35 @@ function resolveLinks(links: NavLink[] | undefined, base: string): NavLink[] {
   }));
 }
 
+function isExternalHref(href: string): boolean {
+  return /^(https?:|mailto:|tel:)/i.test(href);
+}
+
+function toVendorPath(href: string, base: string, vendorSlug: string): string {
+  if (!href || isExternalHref(href)) return href;
+
+  const normalizedHref = href.startsWith("/") ? href : `/${href}`;
+
+  if (!base) {
+    // On separate vendor domains, links should be root-relative.
+    if (normalizedHref === "/") return "/";
+    const ownVendorPrefix = `/vendor/${vendorSlug}`;
+    if (normalizedHref === ownVendorPrefix) return "/";
+    if (normalizedHref.startsWith(`${ownVendorPrefix}/`)) {
+      return normalizedHref.slice(ownVendorPrefix.length) || "/";
+    }
+    return normalizedHref;
+  }
+
+  if (normalizedHref === "/") return base;
+  if (normalizedHref.startsWith("/vendor/")) return normalizedHref;
+  return `${base}${normalizedHref}`;
+}
+
 function resolveFooterLinks(
   sections: FooterSection[] | undefined,
   base: string,
+  vendorSlug: string,
 ): FooterSection[] {
   if (!sections || sections.length === 0) {
     return [
@@ -89,22 +117,41 @@ function resolveFooterLinks(
     title: section.title,
     items: section.items.map((item) => ({
       title: item.title,
-      href:
-        item.href === "/"
-          ? base
-          : item.href.startsWith("/vendor/")
-            ? item.href
-            : `${base}${item.href}`,
+      href: toVendorPath(item.href, base, vendorSlug),
     })),
   }));
+}
+
+function getVendorLinkBase(vendorSlug: string, requestHost?: string): string {
+  const host = (requestHost ?? "").split(":")[0].toLowerCase();
+  const fallback = `/vendor/${vendorSlug}`;
+  if (!host) return fallback;
+
+  const isLocalhost = host.includes("localhost");
+  const isIpAddress = /^\d+\.\d+\.\d+\.\d+$/.test(host);
+  const mappedVendor = VENDOR_DOMAIN_MAP[host];
+  const isCustomVendorDomain = mappedVendor === vendorSlug;
+
+  const hostParts = host.split(".");
+  const subdomain = hostParts[0];
+  const isVendorSubdomain =
+    !isLocalhost &&
+    !isIpAddress &&
+    hostParts.length >= 3 &&
+    subdomain === vendorSlug &&
+    subdomain !== "www" &&
+    subdomain !== "demo";
+
+  return isCustomVendorDomain || isVendorSubdomain ? "" : fallback;
 }
 
 export function buildChromeLayout(
   layoutJSON: any,
   vendorSlug: string,
   middleComponent: LayoutComponent,
+  requestHost?: string,
 ) {
-  const base = `/vendor/${vendorSlug}`;
+  const base = getVendorLinkBase(vendorSlug, requestHost);
   const navComponent = findLayoutComponent(layoutJSON, [
     "navigation",
     "header",
@@ -125,7 +172,12 @@ export function buildChromeLayout(
               ...(navComponent?.settings ?? {}),
               brandName: navComponent?.settings?.brandName ?? vendorSlug,
               showSearch: false,
-              links: resolveLinks(navComponent?.settings?.links, base),
+              links: (
+                resolveLinks(navComponent?.settings?.links, base) || []
+              ).map((link) => ({
+                label: link.label,
+                href: toVendorPath(link.href, base, vendorSlug),
+              })),
             },
           },
           middleComponent,
@@ -135,7 +187,11 @@ export function buildChromeLayout(
             settings: {
               ...(footerComponent?.settings ?? {}),
               brandName: footerComponent?.settings?.brandName ?? vendorSlug,
-              links: resolveFooterLinks(footerComponent?.settings?.links, base),
+              links: resolveFooterLinks(
+                footerComponent?.settings?.links,
+                base,
+                vendorSlug,
+              ),
             },
           },
         ],

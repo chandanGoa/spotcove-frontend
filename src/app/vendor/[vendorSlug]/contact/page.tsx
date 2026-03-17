@@ -4,6 +4,7 @@
 
 import VendorKeywordClient from "../[keyword]/VendorKeywordClient";
 import { buildChromeLayout } from "../layout-chrome";
+import { headers } from "next/headers";
 
 interface Props {
   params: { vendorSlug: string };
@@ -11,6 +12,7 @@ interface Props {
 
 export default async function VendorContactPage({ params }: Props) {
   const { vendorSlug } = params;
+  const requestHost = headers().get("host") ?? "";
 
   const apiBase = (
     process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -39,19 +41,24 @@ export default async function VendorContactPage({ params }: Props) {
   const layoutJSON = data?.layoutJSON ?? null;
   const vendorName = data?.vendor?.name ?? vendorSlug;
 
-  const pageLayout = buildChromeLayout(layoutJSON, vendorSlug, {
-    id: "contact-content",
-    type: "contact",
-    settings: {
-      heading: contentJSON.heading ?? `Contact ${vendorName}`,
-      body:
-        contentJSON.body ??
-        "You can update this text anytime from Vendor Admin > Content.",
-      email: contentJSON.email,
-      phone: contentJSON.phone,
-      className: "container mx-auto px-4 py-16 max-w-4xl",
+  const pageLayout = buildChromeLayout(
+    layoutJSON,
+    vendorSlug,
+    {
+      id: "contact-content",
+      type: "contact",
+      settings: {
+        heading: contentJSON.heading ?? `Contact ${vendorName}`,
+        body:
+          contentJSON.body ??
+          "You can update this text anytime from Vendor Admin > Content.",
+        email: contentJSON.email,
+        phone: contentJSON.phone,
+        className: "container mx-auto px-4 py-16 max-w-4xl",
+      },
     },
-  });
+    requestHost,
+  );
 
   return (
     <VendorKeywordClient

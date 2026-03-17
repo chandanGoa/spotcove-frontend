@@ -4,6 +4,7 @@
 
 import VendorKeywordClient from "../[keyword]/VendorKeywordClient";
 import { buildChromeLayout } from "../layout-chrome";
+import { headers } from "next/headers";
 
 interface Props {
   params: { vendorSlug: string };
@@ -11,6 +12,7 @@ interface Props {
 
 export default async function VendorProductsPage({ params }: Props) {
   const { vendorSlug } = params;
+  const requestHost = headers().get("host") ?? "";
 
   const apiBase = (
     process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -40,16 +42,21 @@ export default async function VendorProductsPage({ params }: Props) {
   const products: any[] = data?.products ?? [];
   const vendorName = data?.vendor?.name ?? vendorSlug;
 
-  const pageLayout = buildChromeLayout(layoutJSON, vendorSlug, {
-    id: "products-content",
-    type: "product-grid",
-    settings: {
-      title: contentJSON.title ?? `${vendorName} Products`,
-      columns: 4,
-      align: "center",
-      paddingY: 48,
+  const pageLayout = buildChromeLayout(
+    layoutJSON,
+    vendorSlug,
+    {
+      id: "products-content",
+      type: "product-grid",
+      settings: {
+        title: contentJSON.title ?? `${vendorName} Products`,
+        columns: 4,
+        align: "center",
+        paddingY: 48,
+      },
     },
-  });
+    requestHost,
+  );
 
   return (
     <VendorKeywordClient
