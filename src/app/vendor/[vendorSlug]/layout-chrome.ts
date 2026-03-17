@@ -1,5 +1,8 @@
 type NavLink = { label: string; href: string };
-type FooterSection = { title: string; items: Array<{ title: string; href: string }> };
+type FooterSection = {
+  title: string;
+  items: Array<{ title: string; href: string }>;
+};
 
 type LayoutComponent = {
   id: string;
@@ -7,7 +10,10 @@ type LayoutComponent = {
   settings?: Record<string, any>;
 };
 
-function findLayoutComponent(layout: any, types: string[]): LayoutComponent | null {
+function findLayoutComponent(
+  layout: any,
+  types: string[],
+): LayoutComponent | null {
   if (!layout) return null;
 
   const inComponents = (components: any[]): LayoutComponent | null => {
@@ -28,7 +34,10 @@ function findLayoutComponent(layout: any, types: string[]): LayoutComponent | nu
     const found = inComponents(element.components);
     if (found) return found;
 
-    const childFound = findLayoutComponent({ elements: element.children ?? [] }, types);
+    const childFound = findLayoutComponent(
+      { elements: element.children ?? [] },
+      types,
+    );
     if (childFound) return childFound;
   }
 
@@ -56,7 +65,10 @@ function resolveLinks(links: NavLink[] | undefined, base: string): NavLink[] {
   }));
 }
 
-function resolveFooterLinks(sections: FooterSection[] | undefined, base: string): FooterSection[] {
+function resolveFooterLinks(
+  sections: FooterSection[] | undefined,
+  base: string,
+): FooterSection[] {
   if (!sections || sections.length === 0) {
     return [
       {
@@ -93,7 +105,10 @@ export function buildChromeLayout(
   middleComponent: LayoutComponent,
 ) {
   const base = `/vendor/${vendorSlug}`;
-  const navComponent = findLayoutComponent(layoutJSON, ["navigation", "header"]);
+  const navComponent = findLayoutComponent(layoutJSON, [
+    "navigation",
+    "header",
+  ]);
   const footerComponent = findLayoutComponent(layoutJSON, ["footer"]);
 
   return {

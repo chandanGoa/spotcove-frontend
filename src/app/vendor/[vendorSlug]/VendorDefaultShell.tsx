@@ -45,12 +45,19 @@ function resolveLinks(
   if (!links) return [];
   return links.map((l) => ({
     label: l.label,
-    href: l.href === "/" ? base : l.href.startsWith("/vendor/") ? l.href : `${base}${l.href}`,
+    href:
+      l.href === "/"
+        ? base
+        : l.href.startsWith("/vendor/")
+          ? l.href
+          : `${base}${l.href}`,
   }));
 }
 
 function resolveFooterLinks(
-  sections: Array<{ title: string; items: Array<{ title: string; href: string }> }> | undefined,
+  sections:
+    | Array<{ title: string; items: Array<{ title: string; href: string }> }>
+    | undefined,
   base: string,
 ): Array<{ title: string; items: Array<{ title: string; href: string }> }> {
   if (!sections) return [];
@@ -58,12 +65,21 @@ function resolveFooterLinks(
     title: s.title,
     items: s.items.map((item) => ({
       title: item.title,
-      href: item.href === "/" ? base : item.href.startsWith("/vendor/") ? item.href : `${base}${item.href}`,
+      href:
+        item.href === "/"
+          ? base
+          : item.href.startsWith("/vendor/")
+            ? item.href
+            : `${base}${item.href}`,
     })),
   }));
 }
 
-export default function VendorDefaultShell({ vendorSlug, layoutJSON, children }: Props) {
+export default function VendorDefaultShell({
+  vendorSlug,
+  layoutJSON,
+  children,
+}: Props) {
   const base = `/vendor/${vendorSlug}`;
 
   const navComp = findLayoutComponent(layoutJSON, ["navigation", "header"]);
