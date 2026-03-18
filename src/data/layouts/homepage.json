@@ -83,20 +83,6 @@
           }
         },
         {
-          "id": "homepage-promoter-cta",
-          "type": "promoter-cta",
-          "settings": {
-            "title": "Promote Your Best Offers",
-            "subtitle": "Showcase campaigns, bundles, and limited-time services with confidence.",
-            "buttonText": "Launch a Promo",
-            "buttonLink": "/demo/marketplace",
-            "align": "center",
-            "variant": "promoter",
-            "paddingY": 72,
-            "containerPadding": 24
-          }
-        },
-        {
           "id": "homepage-footer",
           "type": "footer",
           "settings": {

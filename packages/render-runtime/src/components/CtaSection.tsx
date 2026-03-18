@@ -16,7 +16,6 @@ export interface CtaSectionSettings {
   buttonText?: string;
   buttonLink?: string;
   secondaryText?: string;
-  bullets?: string[];
   align?: "left" | "center" | "right";
   paddingY?: number | string;
   maxWidth?: number | string;
@@ -52,7 +51,6 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
     maxWidth,
     containerPadding,
     variant = "default",
-    bullets,
   } = settings;
 
   const themeOverrideStyles = getThemeOverrideStyles(themeOverride);
@@ -61,25 +59,6 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
   const resolvedContainerPadding = toCssValue(containerPadding ?? 24);
 
   const variantClass = "bg-[#0B1F3A] text-white";
-  const bulletClass = "bg-blue-600";
-
-  const resolvedBullets =
-    bullets && bullets.length > 0
-      ? bullets
-      : variant === "vendor"
-        ? [
-            "Launch a storefront in days, not months",
-            "No-code layout control with JSON-driven sections",
-            "Built-in merchandising and service promotion",
-          ]
-        : variant === "promoter"
-          ? [
-              "Showcase trusted campaigns and curated services",
-              "Highlight performance with real-time layout updates",
-              "Align promotions with your brand tone",
-            ]
-          : [];
-
   return (
     <section
       className={cn("py-20 md:py-24", settings.className, className)}
@@ -114,19 +93,13 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
             {subtitle}
           </p>
         )}
-        {resolvedBullets.length > 0 && (
-          <ul className="mt-5 space-y-2 text-sm text-slate-300">
-            {resolvedBullets.map((bullet, index) => (
-              <li key={`${bullet}-${index}`} className="flex items-start gap-2">
-                <span
-                  className={cn("mt-1 h-2 w-2 rounded-full", bulletClass)}
-                />
-                <span style={{ fontFamily: "var(--font-body, inherit)" }}>
-                  {bullet}
-                </span>
-              </li>
-            ))}
-          </ul>
+        {secondaryText && (
+          <p
+            className="mt-5 text-sm text-slate-300"
+            style={{ fontFamily: "var(--font-body, inherit)" }}
+          >
+            {secondaryText}
+          </p>
         )}
         <div
           className={cn("flex flex-wrap gap-3", {
@@ -142,14 +115,6 @@ export const CtaSection: React.FC<CtaSectionProps> = ({
           >
             <a href={buttonLink}>{buttonText}</a>
           </Button>
-          {secondaryText && (
-            <span
-              className="text-sm text-slate-300"
-              style={{ fontFamily: "var(--font-body, inherit)" }}
-            >
-              {secondaryText}
-            </span>
-          )}
         </div>
       </div>
     </section>

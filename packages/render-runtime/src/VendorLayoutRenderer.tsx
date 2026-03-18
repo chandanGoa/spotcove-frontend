@@ -70,7 +70,6 @@ const componentMappers: Record<string, React.ComponentType<any>> = {
   Content: Content,
   "how-it-works": HowItWorksSection,
   "vendor-cta": CtaSection,
-  "promoter-cta": CtaSection,
   // New components
   testimonials: TestimonialsSection,
   faq: FAQSection,
@@ -153,22 +152,180 @@ interface VendorLayoutRendererProps {
   componentContent?: Record<string, any>;
 }
 
+const REMOVED_COMPONENT_TYPES = new Set(["promoter-cta"]);
+
 function getContentByComponentType(
   componentType: string,
   componentContent: Record<string, any>,
 ) {
-  switch (componentType) {
-    case "hero":
-      return componentContent.hero;
-    case "feature-grid":
-      return componentContent.features;
-    case "cta":
-    case "vendor-cta":
-    case "promoter-cta":
-      return componentContent.cta;
-    default:
-      return undefined;
+  const directMatch = componentContent[componentType];
+  const hasDirectValue =
+    directMatch !== undefined &&
+    (typeof directMatch !== "object" ||
+      directMatch === null ||
+      Object.keys(directMatch).length > 0);
+
+  const aliases: Record<string, string[]> = {
+    hero: ["hero"],
+    "feature-grid": ["features", "feature-grid", "featureGrid"],
+    cta: ["cta"],
+    "vendor-cta": ["cta", "vendorCta", "vendor-cta"],
+    newsletter: ["newsletter", "subscribe"],
+    collections: ["collections", "categories", "featured"],
+    "categories-grid": ["categories", "collections"],
+    "product-grid": ["products", "product-grid", "productGrid"],
+    "featured-products": ["featuredProducts", "featured-products", "products"],
+    "featured-services": ["services", "featuredServices", "featured-services"],
+    testimonials: ["testimonials", "reviews"],
+    faq: ["faq", "faqs"],
+    "promo-section": ["promo", "promotion", "promo-section"],
+    contact: ["contact"],
+    "contact-section": ["contact"],
+    "our-process": ["features", "process", "ourProcess", "our-process"],
+    "process-section": ["features", "process", "ourProcess", "our-process"],
+    "how-it-works": ["features", "howItWorks", "how-it-works", "process"],
+  };
+
+  if (hasDirectValue) {
+    if (directMatch && typeof directMatch === "object") {
+      const aliasKey = (aliases[componentType] ?? []).find(
+        (key) => key !== componentType && componentContent[key] !== undefined,
+      );
+      const aliasValue = aliasKey ? componentContent[aliasKey] : undefined;
+
+      if (aliasValue && typeof aliasValue === "object") {
+        return {
+          ...(aliasValue as Record<string, any>),
+          ...(directMatch as Record<string, any>),
+        };
+      }
+    }
+
+    return directMatch;
   }
+
+  const keys = aliases[componentType] ?? [];
+  for (const key of keys) {
+    if (componentContent[key] !== undefined) {
+      return componentContent[key];
+    }
+  }
+
+  return undefined;
+}
+
+function compactDefined<T extends Record<string, any>>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, v]) => v !== undefined && v !== null),
+  ) as Partial<T>;
+}
+
+function firstNonEmptyText(...values: any[]): string | undefined {
+  for (const value of values) {
+    if (typeof value === "string") {
+      if (value.trim().length > 0) {
+        return value;
+      }
+      continue;
+    }
+
+    if (value !== undefined && value !== null) {
+      return String(value);
+    }
+  }
+
+  return undefined;
+}
+
+function normalizeContentForComponent(
+  componentType: string,
+  rawContent: any,
+): Record<string, any> | undefined {
+  if (!rawContent || typeof rawContent !== "object") {
+    return undefined;
+  }
+
+  if (componentType === "hero") {
+    return compactDefined({
+      title: rawContent.title,
+      subtitle: rawContent.subtitle,
+      buttonText: firstNonEmptyText(rawContent.buttonText, rawContent.ctaText),
+      buttonLink: firstNonEmptyText(rawContent.buttonLink, rawContent.ctaLink),
+      image: rawContent.image ?? rawContent.backgroundImage,
+    });
+  }
+
+  if (["cta", "vendor-cta"].includes(componentType)) {
+    return compactDefined({
+      title: rawContent.title ?? rawContent.heading,
+      subtitle: rawContent.subtitle ?? rawContent.subheading,
+      buttonText: firstNonEmptyText(rawContent.buttonText, rawContent.ctaText),
+      buttonLink: firstNonEmptyText(rawContent.buttonLink, rawContent.ctaLink),
+      secondaryText: firstNonEmptyText(
+        rawContent.secondaryText,
+        rawContent.text,
+      ),
+    });
+  }
+
+  if (
+    ["how-it-works", "our-process", "process-section"].includes(componentType)
+  ) {
+    const rawItems = Array.isArray(rawContent.steps)
+      ? rawContent.steps
+      : Array.isArray(rawContent.items)
+        ? rawContent.items
+        : Array.isArray(rawContent.features)
+          ? rawContent.features
+          : [];
+
+    return compactDefined({
+      title: rawContent.title ?? rawContent.heading,
+      subtitle: rawContent.subtitle ?? rawContent.subheading,
+      steps: rawItems.map((item: any) => ({
+        title: item?.title ?? item?.name ?? "",
+        description: item?.description ?? item?.desc ?? "",
+        icon: item?.icon,
+      })),
+    });
+  }
+
+  if (componentType === "featured-services") {
+    const rawItems = Array.isArray(rawContent.services)
+      ? rawContent.services
+      : Array.isArray(rawContent.items)
+        ? rawContent.items
+        : Array.isArray(rawContent.features)
+          ? rawContent.features
+          : [];
+
+    return compactDefined({
+      title: rawContent.title ?? rawContent.heading,
+      services: rawItems.map((item: any, index: number) => ({
+        id: item?.id ?? `service-${index + 1}`,
+        name: item?.name ?? item?.title ?? `Service ${index + 1}`,
+        description: item?.description ?? item?.desc,
+        price: item?.price,
+        badge: item?.badge,
+        rating: item?.rating,
+        image: item?.image,
+      })),
+    });
+  }
+
+  if (componentType === "newsletter") {
+    return compactDefined({
+      title: rawContent.title ?? rawContent.heading,
+      subtitle: rawContent.subtitle ?? rawContent.subheading,
+      buttonText: firstNonEmptyText(rawContent.buttonText, rawContent.ctaText),
+    });
+  }
+
+  if (["feature-grid", "text", "heading"].includes(componentType)) {
+    return rawContent;
+  }
+
+  return rawContent;
 }
 
 export default function VendorLayoutRenderer({
@@ -204,6 +361,10 @@ export default function VendorLayoutRenderer({
                 {zoneComponents.map((component: any) => {
                   const componentId = component?.id || "unknown";
 
+                  if (REMOVED_COMPONENT_TYPES.has(component?.type)) {
+                    return null;
+                  }
+
                   validateComponentType(component?.type, componentId).forEach(
                     (warning) => console.warn(warning),
                   );
@@ -225,15 +386,19 @@ export default function VendorLayoutRenderer({
                       : "rich-text";
 
                   const Component = componentMappers[validatedType];
-                  const componentTypeContent = getContentByComponentType(
+                  const rawComponentTypeContent = getContentByComponentType(
                     validatedType,
                     componentContent,
+                  );
+                  const componentTypeContent = normalizeContentForComponent(
+                    validatedType,
+                    rawComponentTypeContent,
                   );
 
                   // Inject component data if available
                   const componentSettings = {
-                    ...(componentTypeContent || {}),
                     ...component.settings,
+                    ...(componentTypeContent || {}),
                     ...(componentData[componentId] || {}),
                   };
 
@@ -351,6 +516,10 @@ function renderLayoutElements(
         {componentList.map((component: any) => {
           const componentId = component?.id || "unknown";
 
+          if (REMOVED_COMPONENT_TYPES.has(component?.type)) {
+            return null;
+          }
+
           validateComponentType(component?.type, componentId).forEach(
             (warning) => console.warn(warning),
           );
@@ -371,15 +540,19 @@ function renderLayoutElements(
               : "rich-text";
 
           const Component = componentMappers[validatedType];
-          const componentTypeContent = getContentByComponentType(
+          const rawComponentTypeContent = getContentByComponentType(
             validatedType,
             componentContent,
+          );
+          const componentTypeContent = normalizeContentForComponent(
+            validatedType,
+            rawComponentTypeContent,
           );
 
           // Inject component data if available
           const componentSettings = {
-            ...(componentTypeContent || {}),
             ...component.settings,
+            ...(componentTypeContent || {}),
             ...(componentData[componentId] || {}),
           };
 
